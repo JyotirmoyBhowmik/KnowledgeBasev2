@@ -52,6 +52,7 @@ model UserRole {
 
 model Section {
   id         String   @id @default(uuid())
+  parent_id  String?
   name       String
   slug       String   @unique
   order      Int      @default(0)
@@ -59,7 +60,9 @@ model Section {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  pages Page[]
+  parent   Section?  @relation("SectionHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
+  children Section[] @relation("SectionHierarchy")
+  pages    Page[]
 
   @@map("sections")
 }
@@ -70,6 +73,8 @@ model Page {
   title         String
   slug          String   @unique
   status        String   @default("draft") // draft | published | archived
+  show_author   Boolean  @default(true)
+  show_metrics  Boolean  @default(true)
   created_by_id String?
   updated_by_id String?
   deleted_at    DateTime? // soft-delete
