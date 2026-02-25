@@ -1,0 +1,75 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: knowledge_base_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Prisma Generate
+        run: cd packages/db && npx prisma generate
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build Backend
+        run: cd apps/backend && npx nest build
+
+      - name: Build Frontend
+        run: cd apps/antigravity && npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+
+      - name: Security Audit
+        run: npm audit --audit-level=high || true
+
+  deploy:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to AlmaLinux
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd /opt/knowledge-base
+            git pull origin main
+            npm ci
+            cd packages/db && npx prisma db push && cd ../..
+            cd apps/backend && npx nest build && cd ../..
+            cd apps/antigravity && npm run build && cd ../..
+            pm2 restart all

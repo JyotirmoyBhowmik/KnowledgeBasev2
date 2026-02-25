@@ -1,0 +1,428 @@
+{
+    "package": "Microsoft Copilot Adoption Package",
+    "version": "1.0",
+    "date": "25 February 2026",
+    "scope": "300-User Enterprise Deployment",
+    "sections": [
+        {
+            "name": "Adoption",
+            "slug": "adoption",
+            "order": 3,
+            "visible": true,
+            "description": "Public + Internal – visible to all"
+        },
+        {
+            "name": "Training",
+            "slug": "training",
+            "order": 1,
+            "visible": true,
+            "description": "Role-protected – viewer + contributor"
+        },
+        {
+            "name": "Knowledge",
+            "slug": "knowledge",
+            "order": 2,
+            "visible": true,
+            "description": "Quick-reference – searchable"
+        }
+    ],
+    "pages": [
+        {
+            "slug": "copilot-adoption-roadmap",
+            "title": "Microsoft Copilot Adoption Roadmap for Our Organisation",
+            "section": "adoption",
+            "status": "published",
+            "roles": [
+                "all"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Phase 1 – Orientation (Weeks 1–2)",
+                    "order": 0,
+                    "content": "<ul><li>Mandatory 30-min <em>Getting Started with Copilot Chat</em> for all employees</li><li>Role-specific training sessions (Excel for Finance, PowerPoint for Marketing)</li><li>Weekly Champion \"office hours\" in Teams</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Phase 2 – Pilot & Feedback (Weeks 3–6)",
+                    "order": 1,
+                    "content": "<ul><li>Identify 30–50 early adopters (Champions)</li><li>Gather feedback through internal form</li><li>Adjust training materials based on real usage</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Phase 3 – Scale & Measure (Weeks 7–12)",
+                    "order": 2,
+                    "content": "<ul><li>Full rollout to 300 users</li><li>Use the Copilot Dashboard to track adoption and usage</li><li>Highlight top 10 success stories in the company newsletter</li></ul>"
+                },
+                {
+                    "type": "PDF",
+                    "title": "Copilot Adoption Roadmap – 2026 Edition",
+                    "order": 3,
+                    "file_path": "/var/lib/kb/pdfs/copilot-adoption-roadmap-2026.pdf"
+                },
+                {
+                    "type": "URL",
+                    "title": "Copilot Learn Hub (Microsoft Official)",
+                    "order": 4,
+                    "url": "https://learn.microsoft.com/en-us/copilot"
+                }
+            ]
+        },
+        {
+            "slug": "why-copilot-business-value",
+            "title": "Why Copilot? Business Value and ROI",
+            "section": "adoption",
+            "status": "published",
+            "roles": [
+                "all"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Executive Summary",
+                    "order": 0,
+                    "content": "<p>Microsoft Copilot is an AI-powered productivity assistant embedded across Microsoft 365. Early enterprise adopters report <strong>30–50% time savings</strong> on repetitive tasks and a measurable uplift in employee satisfaction.</p><h3>Key ROI Metrics</h3><table style='width:100%;border-collapse:collapse'><tr style='border-bottom:1px solid #334155'><th style='text-align:left;padding:8px'>Metric</th><th style='text-align:left;padding:8px'>Before Copilot</th><th style='text-align:left;padding:8px'>After Copilot</th></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Email drafting</td><td style='padding:8px'>12 min avg</td><td style='padding:8px'>4 min avg</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Meeting recap</td><td style='padding:8px'>20 min manual</td><td style='padding:8px'>Instant (auto)</td></tr><tr><td style='padding:8px'>Data analysis (Excel)</td><td style='padding:8px'>45 min</td><td style='padding:8px'>4 min</td></tr></table>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Projected Outcomes (Microsoft Benchmarks)",
+                    "order": 1,
+                    "content": "<table style='width:100%;border-collapse:collapse'><tr style='border-bottom:1px solid #334155'><th style='text-align:left;padding:8px'>Timeframe</th><th style='text-align:left;padding:8px'>Key Metric</th><th style='text-align:left;padding:8px'>Expected Result</th></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Week 4</td><td style='padding:8px'>Active Usage</td><td style='padding:8px'>40% adoption</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Week 12</td><td style='padding:8px'>Consistent Use</td><td style='padding:8px'>85% weekly active users</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Ongoing</td><td style='padding:8px'>Productivity</td><td style='padding:8px'>Avg. 45 min/week/user saved</td></tr><tr><td style='padding:8px'>ROI Tracking</td><td style='padding:8px'>Copilot Dashboard</td><td style='padding:8px'>Measurable hours saved, content generated, meetings summarised</td></tr></table>"
+                },
+                {
+                    "type": "URL",
+                    "title": "Microsoft Copilot ROI Calculator",
+                    "order": 2,
+                    "url": "https://adoption.microsoft.com/en-us/copilot/"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-security-privacy",
+            "title": "Security, Privacy & Responsible AI with Copilot",
+            "section": "adoption",
+            "status": "published",
+            "roles": [
+                "all"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Data Security Principles",
+                    "order": 0,
+                    "content": "<ul><li>Copilot only accesses data the user already has permission to view</li><li>Content stays within your Microsoft 365 tenant boundary</li><li>No customer data is used to train the underlying LLM</li><li>All prompts and responses are encrypted in transit and at rest</li><li>Full admin audit logs available in Microsoft Purview</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Responsible AI Guidelines",
+                    "order": 1,
+                    "content": "<h3>Our Internal AI Policy</h3><ol><li><strong>Always verify</strong> – Copilot output is a draft, not a final answer</li><li><strong>No sensitive data in prompts</strong> unless context-grounded within M365</li><li><strong>Report hallucinations</strong> – Flag incorrect outputs in the Suggestions module</li><li><strong>Human-in-the-loop</strong> – All published content requires reviewer approval</li></ol>"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-chat-getting-started",
+            "title": "Getting Started with Microsoft Copilot Chat (30-min)",
+            "section": "training",
+            "status": "published",
+            "roles": [
+                "viewer",
+                "contributor",
+                "admin",
+                "super_admin"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Key 2026 Features",
+                    "order": 0,
+                    "content": "<ul><li>Personalised context memory and tone adaptation</li><li>Agent Mode for multi-step tasks</li><li>Copilot Pages for persistent collaboration</li><li>Secure grounding in Microsoft 365 data</li><li>Voice and memory continuity</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Top 10 Daily Prompts (Copy-Ready)",
+                    "order": 1,
+                    "content": "<table style='width:100%;border-collapse:collapse'><tr style='border-bottom:1px solid #334155'><th style='text-align:left;padding:8px'>Use Case</th><th style='text-align:left;padding:8px'>Example Prompt</th><th style='text-align:left;padding:8px'>Time Saved</th></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Catch up on meetings</td><td style='padding:8px'>\"Recap yesterday's leadership meeting – key decisions and actions\"</td><td style='padding:8px'>15 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Summarise emails</td><td style='padding:8px'>\"Summarise this thread into bullet points + action items.\"</td><td style='padding:8px'>10 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Brainstorm ideas</td><td style='padding:8px'>\"Give me five innovative ways to reduce customer churn.\"</td><td style='padding:8px'>20 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Draft comms</td><td style='padding:8px'>\"Write a professional message declining the vendor proposal politely.\"</td><td style='padding:8px'>10 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Analyse data</td><td style='padding:8px'>\"What are the top 3 trends in this spreadsheet?\"</td><td style='padding:8px'>15 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Prepare meetings</td><td style='padding:8px'>\"Draft an agenda for tomorrow's project review meeting\"</td><td style='padding:8px'>10 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Research topics</td><td style='padding:8px'>\"Summarise the latest industry trends in supply chain management\"</td><td style='padding:8px'>25 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Create content</td><td style='padding:8px'>\"Write a LinkedIn post about our sustainability initiative\"</td><td style='padding:8px'>15 min</td></tr><tr style='border-bottom:1px solid #334155'><td style='padding:8px'>Plan projects</td><td style='padding:8px'>\"Break this project into 2-week sprints with milestones\"</td><td style='padding:8px'>20 min</td></tr><tr><td style='padding:8px'>Report writing</td><td style='padding:8px'>\"Write an executive summary of this quarterly report\"</td><td style='padding:8px'>30 min</td></tr></table>"
+                },
+                {
+                    "type": "URL",
+                    "title": "Microsoft Learn: Copilot Chat in Action – 2026",
+                    "order": 2,
+                    "url": "https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-overview"
+                },
+                {
+                    "type": "PDF",
+                    "title": "Copilot Chat Prompt Library v1 (Feb 2026)",
+                    "order": 3,
+                    "file_path": "/var/lib/kb/pdfs/copilot-chat-prompt-library-v1.pdf"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-excel-mastery",
+            "title": "Copilot in Excel Mastery (with Agent Mode)",
+            "section": "training",
+            "status": "published",
+            "roles": [
+                "viewer",
+                "contributor",
+                "admin",
+                "super_admin"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Key Highlights",
+                    "order": 0,
+                    "content": "<ul><li><strong>Agent Mode</strong> (rolled out Jan 2026) enables multi-step reasoning within the grid</li><li>New <code>=COPILOT()</code> function for smart formula generation</li><li>Works seamlessly with local and cloud workbooks</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Step-by-Step Modules",
+                    "order": 1,
+                    "content": "<ol><li><strong>Preparing Data for Copilot Analysis</strong> – Clean headers, remove merged cells, use Tables</li><li><strong>Asking for Insights: Sample Prompts</strong><br/>\"Show the top 5 products by revenue as a bar chart\"<br/>\"Highlight all cells where growth is negative\"</li><li><strong>Creating Charts & Pivot Tables Automatically</strong><br/>\"Create a pivot table showing quarterly revenue by region\"</li><li><strong>Best Practices & Common Pitfalls</strong><br/>Keep data &lt; 2M rows · Use structured references · Verify formula output</li></ol>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Before/After Impact",
+                    "order": 2,
+                    "content": "<div style='background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px'><h4 style='color:#10b981;margin-top:0'>⚡ Before/After</h4><p><strong>Before:</strong> 45-minute manual data analysis task</p><p><strong>After:</strong> Completed in <strong>4 minutes</strong> with Copilot Agent Mode</p><p style='color:#94a3b8;font-size:14px;margin-bottom:0'>Time saved: <strong>91%</strong></p></div>"
+                },
+                {
+                    "type": "PDF",
+                    "title": "Excel Copilot Cheat Sheet (2026 Edition)",
+                    "order": 3,
+                    "file_path": "/var/lib/kb/pdfs/excel-copilot-cheat-sheet-2026.pdf"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-powerpoint",
+            "title": "Copilot in PowerPoint – From Idea to Deck in Minutes",
+            "section": "training",
+            "status": "published",
+            "roles": [
+                "viewer",
+                "contributor",
+                "admin",
+                "super_admin"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Best Practices",
+                    "order": 0,
+                    "content": "<ul><li>Begin with approved company templates</li><li>Use Word heading styles for seamless content import</li><li>Let Copilot create the first draft — refine the final 20%</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Sample Prompt",
+                    "order": 1,
+                    "content": "<blockquote style='border-left:3px solid #6366f1;padding:12px 16px;background:#1e293b;border-radius:0 8px 8px 0'>\"Create a 12-slide presentation on our Q1 results using the corporate brand template. Include charts from the attached Excel file. Audience: Board of Directors. Tone: energetic yet professional.\"</blockquote>"
+                },
+                {
+                    "type": "URL",
+                    "title": "Word-to-PowerPoint Magic (90 seconds) – Microsoft Learn",
+                    "order": 2,
+                    "url": "https://support.microsoft.com/en-us/copilot-powerpoint"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-word",
+            "title": "Copilot in Word – Draft, Summarise, Polish",
+            "section": "training",
+            "status": "published",
+            "roles": [
+                "viewer",
+                "contributor",
+                "admin",
+                "super_admin"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Capabilities",
+                    "order": 0,
+                    "content": "<ul><li>Draft entire sections with one command</li><li>Summarise and integrate feedback from comments</li><li>Rewrite content in multiple tones (formal, casual, executive)</li><li>Cross-document intelligence — reference other files in your OneDrive</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "Prompt Library (15 Editable Commands)",
+                    "order": 1,
+                    "content": "<ol><li>\"Draft an executive summary of this document\"</li><li>\"Rewrite this paragraph in a more formal tone\"</li><li>\"Summarise this 20-page report in 5 bullet points\"</li><li>\"Create a table comparing Options A, B, and C\"</li><li>\"Turn this email thread into a structured memo\"</li><li>\"Add a conclusion section based on the data above\"</li><li>\"Simplify this text for a non-technical audience\"</li><li>\"Translate this section into French\"</li><li>\"Generate a cover letter template for this job description\"</li><li>\"List the key action items from these meeting notes\"</li><li>\"Expand this outline into full paragraphs\"</li><li>\"Create a FAQ section from the content in this document\"</li><li>\"Suggest improvements for clarity and readability\"</li><li>\"Write a professional LinkedIn post based on this article\"</li><li>\"Create an agenda from these discussion points\"</li></ol>"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-role-playbooks",
+            "title": "Role-Based Copilot Playbooks (Finance | HR | Sales | Operations | IT)",
+            "section": "training",
+            "status": "published",
+            "roles": [
+                "viewer",
+                "contributor",
+                "admin",
+                "super_admin"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "💰 Finance",
+                    "order": 0,
+                    "content": "<h3>Finance Team</h3><ul><li>\"Analyse variance between budget vs actual for Q4 — highlight top 5 deviations\"</li><li>\"Create a cash flow forecast table for the next 6 months\"</li><li>\"Summarise this audit report into findings, risks, and recommendations\"</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "👥 HR",
+                    "order": 1,
+                    "content": "<h3>HR Team</h3><ul><li>\"Draft an offer letter for a Senior Engineer role at Band 7\"</li><li>\"Summarise employee engagement survey results by department\"</li><li>\"Create a 90-day onboarding checklist for new hires\"</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "📈 Sales",
+                    "order": 2,
+                    "content": "<h3>Sales Team</h3><ul><li>\"Write a follow-up email for a prospect who attended our webinar\"</li><li>\"Prepare a competitive analysis slide comparing us vs Competitor X\"</li><li>\"Summarise this quarter's pipeline — deals at risk and next actions\"</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "⚙️ Operations",
+                    "order": 3,
+                    "content": "<h3>Operations Team</h3><ul><li>\"Create a Gantt chart timeline for the warehouse expansion project\"</li><li>\"Analyse supplier delivery data and flag late shipments\"</li><li>\"Draft an SOP for the new inventory management process\"</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "💻 IT",
+                    "order": 4,
+                    "content": "<h3>IT Team</h3><ul><li>\"Write a change request template for production deployments\"</li><li>\"Summarise this week's incident tickets — patterns and root causes\"</li><li>\"Create a knowledge base article for the VPN setup procedure\"</li></ul>"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-prompt-library",
+            "title": "Copilot Prompt Library (200+ Prompts)",
+            "section": "knowledge",
+            "status": "published",
+            "roles": [
+                "all"
+            ],
+            "modules": [
+                {
+                    "type": "TEXT",
+                    "title": "Overview",
+                    "order": 0,
+                    "content": "<p>This library contains <strong>200+ curated prompts</strong> for Microsoft Copilot, organised by application and use case. Updated quarterly.</p><h3>Categories</h3><ul><li><strong>Excel:</strong> Data analysis, formula generation, pivot tables</li><li><strong>Word:</strong> Drafting, summarisation, tone adjustment</li><li><strong>PowerPoint:</strong> Slide creation, design polish, content import</li><li><strong>Teams:</strong> Meeting recap, action items, follow-ups</li><li><strong>Outlook:</strong> Email drafting, thread summary, scheduling</li></ul>"
+                },
+                {
+                    "type": "TEXT",
+                    "title": "🏆 Prompt of the Month – February 2026",
+                    "order": 1,
+                    "content": "<div style='background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px'><h4 style='color:#818cf8;margin-top:0'>🏆 Prompt of the Month</h4><blockquote style='border-left:3px solid #6366f1;padding:8px 16px;margin:8px 0'>\"Compare the attached sales data for Q3 and Q4 — show a side-by-side table, highlight the top 3 improvements, and suggest actions for underperforming regions.\"</blockquote><p style='color:#94a3b8;font-size:14px'>Best used in: <strong>Excel + Word</strong> · Average time saved: <strong>35 minutes</strong></p></div>"
+                }
+            ]
+        },
+        {
+            "slug": "copilot-top-use-cases",
+            "title": "Top 20 Copilot Use Cases & Before/After Examples",
+            "section": "knowledge",
+            "status": "published",
+            "roles": [
+                "all"
+            ]
+        },
+        {
+            "slug": "copilot-troubleshooting",
+            "title": "Troubleshooting & Limitations (2026 Edition)",
+            "section": "knowledge",
+            "status": "published",
+            "roles": [
+                "all"
+            ]
+        },
+        {
+            "slug": "copilot-success-stories",
+            "title": "Copilot Success Stories from Our Teams",
+            "section": "knowledge",
+            "status": "published",
+            "roles": [
+                "viewer",
+                "contributor",
+                "admin",
+                "super_admin"
+            ]
+        },
+        {
+            "slug": "copilot-enterprise-enhancements",
+            "title": "Enterprise-Grade Enhancements for Copilot Adoption",
+            "section": "adoption",
+            "status": "published",
+            "roles": [
+                "all"
+            ]
+        },
+        {
+            "slug": "copilot-implementation-checklist",
+            "title": "Copilot KB Implementation Checklist (2–3 Days)",
+            "section": "adoption",
+            "status": "published",
+            "roles": [
+                "admin",
+                "super_admin"
+            ]
+        }
+    ],
+    "menus": [
+        {
+            "label": "Home",
+            "route": "/",
+            "order": 0
+        },
+        {
+            "label": "Training",
+            "route": "/sections/training",
+            "order": 1
+        },
+        {
+            "label": "Knowledge",
+            "route": "/sections/knowledge",
+            "order": 2
+        },
+        {
+            "label": "Copilot Hub",
+            "route": "/sections/adoption",
+            "order": 3,
+            "children": [
+                {
+                    "label": "Adoption Roadmap",
+                    "route": "/pages/copilot-adoption-roadmap",
+                    "order": 0
+                },
+                {
+                    "label": "Why Copilot?",
+                    "route": "/pages/why-copilot-business-value",
+                    "order": 1
+                },
+                {
+                    "label": "Security & Privacy",
+                    "route": "/pages/copilot-security-privacy",
+                    "order": 2
+                },
+                {
+                    "label": "Enterprise Enhancements",
+                    "route": "/pages/copilot-enterprise-enhancements",
+                    "order": 3
+                },
+                {
+                    "label": "Implementation Checklist",
+                    "route": "/pages/copilot-implementation-checklist",
+                    "order": 4
+                }
+            ]
+        },
+        {
+            "label": "Contact & Suggest",
+            "route": "/sections/contact-suggest",
+            "order": 4
+        }
+    ]
+}

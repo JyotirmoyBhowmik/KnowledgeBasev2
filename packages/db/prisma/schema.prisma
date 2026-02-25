@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth & Users ────────────────────────────────────────
+
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  name          String?
+  auth_source   String       @default("local")
+  password_hash String?
+  status        String       @default("active")
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
+
+  roles             UserRole[]
+  audit_logs        AuditLog[]
+  suggestions       Suggestion[]
+  created_pages     Page[]     @relation("PageCreatedBy")
+  updated_pages     Page[]     @relation("PageUpdatedBy")
+
+  @@map("users")
+}
+
+model Role {
+  id   String     @id @default(uuid())
+  name String     @unique
+
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  user_id String
+  role_id String
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, role_id])
+  @@map("user_roles")
+}
+
+// ─── Content Engine ──────────────────────────────────────
+
+model Section {
+  id         String   @id @default(uuid())
+  name       String
+  slug       String   @unique
+  order      Int      @default(0)
+  visible    Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  pages Page[]
+
+  @@map("sections")
+}
+
+model Page {
+  id            String   @id @default(uuid())
+  section_id    String
+  title         String
+  slug          String   @unique
+  status        String   @default("draft") // draft | published | archived
+  created_by_id String?
+  updated_by_id String?
+  deleted_at    DateTime? // soft-delete
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  section    Section  @relation(fields: [section_id], references: [id], onDelete: Cascade)
+  created_by User?    @relation("PageCreatedBy", fields: [created_by_id], references: [id], onDelete: SetNull)
+  updated_by User?    @relation("PageUpdatedBy", fields: [updated_by_id], references: [id], onDelete: SetNull)
+  modules    Module[]
+
+  @@map("pages")
+}
+
+model Module {
+  id         String    @id @default(uuid())
+  page_id    String
+  type       String    // TEXT | PDF | VIDEO | URL
+  content    String?   // rich HTML/Markdown for TEXT modules
+  file_path  String?   // for PDF and VIDEO
+  url        String?   // for URL modules
+  title      String?   // display title for PDF/VIDEO/URL
+  order      Int       @default(0)
+  deleted_at DateTime? // soft-delete
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  page Page @relation(fields: [page_id], references: [id], onDelete: Cascade)
+
+  @@map("modules")
+}
+
+// ─── Navigation ──────────────────────────────────────────
+
+model Menu {
+  id            String  @id @default(uuid())
+  parent_id     String?
+  label         String
+  route         String?
+  order         Int     @default(0)
+  visible       Boolean @default(true)
+  roles_allowed Json?   // JSONB array of role names
+
+  parent   Menu?  @relation("MenuHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
+  children Menu[] @relation("MenuHierarchy")
+
+  @@map("menus")
+}
+
+// ─── Audit & Suggestions ────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  user_id     String?
+  action      String
+  entity_type String
+  entity_id   String
+  before      Json?
+  after       Json?
+  created_at  DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model Suggestion {
+  id         String   @id @default(uuid())
+  user_id    String?
+  message    String
+  status     String   @default("pending")
+  created_at DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@map("suggestions")
+}
