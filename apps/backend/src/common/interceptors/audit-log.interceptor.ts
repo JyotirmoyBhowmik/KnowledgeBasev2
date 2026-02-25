@@ -5,7 +5,7 @@ import {
     CallHandler,
 } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 /**
  * AuditLogInterceptor captures before/after snapshots for every

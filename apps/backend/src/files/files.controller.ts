@@ -15,7 +15,7 @@ import { diskStorage } from 'multer';
 import { Response } from 'express';
 import { extname, join } from 'path';
 import { existsSync } from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/lib/kb';
@@ -38,7 +38,7 @@ export class FilesController {
           cb(null, dest);
         },
         filename: (_req, file, cb) => {
-          const uniqueName = `${uuidv4()}${extname(file.originalname)}`;
+          const uniqueName = `${randomUUID()}${extname(file.originalname)}`;
           cb(null, uniqueName);
         },
       }),
