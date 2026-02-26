@@ -12,6 +12,12 @@ export class SectionsController {
     return this.sectionsService.create(dto);
   }
 
+  @Get('tree')
+  getTree() {
+    // In a real app we'd extract roles from req.user
+    return this.sectionsService.getTree([]);
+  }
+
   @Get()
   findAll() {
     return this.sectionsService.findAll();

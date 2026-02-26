@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ─── Auth & Users ────────────────────────────────────────
@@ -51,14 +50,16 @@ model UserRole {
 // ─── Content Engine ──────────────────────────────────────
 
 model Section {
-  id         String   @id @default(uuid())
-  parent_id  String?
-  name       String
-  slug       String   @unique
-  order      Int      @default(0)
-  visible    Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id            String   @id @default(uuid())
+  parent_id     String?
+  name          String
+  slug          String   @unique
+  route         String?
+  roles_allowed Json?
+  order         Int      @default(0)
+  visible       Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
   parent   Section?  @relation("SectionHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
   children Section[] @relation("SectionHierarchy")
@@ -107,22 +108,7 @@ model Module {
   @@map("modules")
 }
 
-// ─── Navigation ──────────────────────────────────────────
-
-model Menu {
-  id            String  @id @default(uuid())
-  parent_id     String?
-  label         String
-  route         String?
-  order         Int     @default(0)
-  visible       Boolean @default(true)
-  roles_allowed Json?   // JSONB array of role names
-
-  parent   Menu?  @relation("MenuHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
-  children Menu[] @relation("MenuHierarchy")
-
-  @@map("menus")
-}
+// ─── Navigation (Merged into Sections) ───────────────────
 
 // ─── Audit & Suggestions ────────────────────────────────
 

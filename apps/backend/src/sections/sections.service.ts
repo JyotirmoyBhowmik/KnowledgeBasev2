@@ -27,6 +27,30 @@ export class SectionsService {
     return section;
   }
 
+  async getTree(userRoles: string[] = []) {
+    const allSections = await this.prisma.section.findMany({
+      where: { visible: true },
+      orderBy: { order: 'asc' },
+    });
+
+    const filterByRoles = (section: any) => {
+      if (!section.roles_allowed || Object.keys(section.roles_allowed).length === 0) return true;
+      const allowedRoles: string[] = section.roles_allowed;
+      return allowedRoles.some(r => userRoles.includes(r));
+    };
+
+    const buildTree = (parentId: string | null = null): any[] => {
+      return allSections
+        .filter(s => s.parent_id === parentId && filterByRoles(s))
+        .map(s => ({
+          ...s,
+          children: buildTree(s.id),
+        }));
+    };
+
+    return buildTree();
+  }
+
   async findBySlug(slug: string) {
     const section = await this.prisma.section.findUnique({
       where: { slug },

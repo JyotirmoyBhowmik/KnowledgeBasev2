@@ -8,8 +8,8 @@ import { UsersModule } from './users/users.module';
 import { SectionsModule } from './sections/sections.module';
 import { PagesModule } from './pages/pages.module';
 import { ModulesModule } from './modules/modules.module';
-import { MenusModule } from './menus/menus.module';
 import { FilesModule } from './files/files.module';
+import { SuggestionsModule } from './suggestions/suggestions.module';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
 
@@ -21,8 +21,8 @@ import { SecurityHeadersMiddleware } from './common/middleware/security-headers.
     SectionsModule,
     PagesModule,
     ModulesModule,
-    MenusModule,
     FilesModule,
+    SuggestionsModule,
   ],
   controllers: [AppController],
   providers: [

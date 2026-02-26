@@ -9,7 +9,7 @@ APP_DIR="/opt/knowledge-base"
 UPLOAD_DIR="/var/lib/kb"
 DB_NAME="knowledge_base"
 DB_USER="postgres"
-NODE_VERSION="20"
+NODE_VERSION="24"
 
 echo "═══════════════════════════════════════════════"
 echo "  Enterprise Knowledge Base - AlmaLinux Setup"
@@ -17,7 +17,8 @@ echo "════════════════════════�
 
 # 1. System packages
 echo "→ Installing system dependencies..."
-sudo dnf install -y nginx postgresql-server postgresql
+sudo dnf install -y epel-release
+sudo dnf install -y nginx postgresql-server postgresql certbot python3-certbot-nginx
 sudo postgresql-setup --initdb 2>/dev/null || true
 sudo systemctl enable --now postgresql nginx
 
@@ -65,4 +66,5 @@ echo "  ✅ Deployment complete!"
 echo "  Backend:   http://localhost:4000"
 echo "  Frontend:  http://localhost:3000"
 echo "  Nginx:     http://localhost:80"
+echo "  HTTPS:     Run 'sudo certbot --nginx' to configure secure port 443"
 echo "═══════════════════════════════════════════════"
