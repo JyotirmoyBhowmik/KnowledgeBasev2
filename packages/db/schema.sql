@@ -1,13 +1,12 @@
 -- ══════════════════════════════════════════════════════
 -- Knowledge Base — PostgreSQL Schema (standalone, no Prisma)
+-- Uses gen_random_uuid() — built into PostgreSQL 13+
 -- ══════════════════════════════════════════════════════
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ─── Auth & Users ────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS users (
-    id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email         TEXT UNIQUE NOT NULL,
     name          TEXT,
     auth_source   TEXT NOT NULL DEFAULT 'local',
@@ -18,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS roles (
-    id   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT UNIQUE NOT NULL
 );
 
@@ -31,7 +30,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
 -- ─── Content Engine ──────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS sections (
-    id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     parent_id     UUID REFERENCES sections(id) ON DELETE SET NULL,
     name          TEXT NOT NULL,
     slug          TEXT UNIQUE NOT NULL,
@@ -45,7 +44,7 @@ CREATE TABLE IF NOT EXISTS sections (
 );
 
 CREATE TABLE IF NOT EXISTS pages (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     section_id      UUID NOT NULL REFERENCES sections(id) ON DELETE CASCADE,
     title           TEXT NOT NULL,
     slug            TEXT UNIQUE NOT NULL,
@@ -64,7 +63,7 @@ CREATE TABLE IF NOT EXISTS pages (
 );
 
 CREATE TABLE IF NOT EXISTS modules (
-    id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     page_id    UUID NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
     type       TEXT NOT NULL,
     content    TEXT,
@@ -81,7 +80,7 @@ CREATE TABLE IF NOT EXISTS modules (
 -- ─── Versioning ──────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS page_versions (
-    id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     page_id    UUID NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
     version    INT NOT NULL,
     snapshot   JSONB NOT NULL,
@@ -92,7 +91,7 @@ CREATE TABLE IF NOT EXISTS page_versions (
 -- ─── Templates ───────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS page_templates (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name        TEXT UNIQUE NOT NULL,
     description TEXT,
     modules     JSONB NOT NULL,
@@ -102,7 +101,7 @@ CREATE TABLE IF NOT EXISTS page_templates (
 -- ─── Activity Tracking ──────────────────────────────
 
 CREATE TABLE IF NOT EXISTS activity_logs (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     action      TEXT NOT NULL,
     entity_type TEXT NOT NULL,
@@ -114,7 +113,7 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 -- ─── Audit & Suggestions ────────────────────────────
 
 CREATE TABLE IF NOT EXISTS audit_logs (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
     action      TEXT NOT NULL,
     entity_type TEXT NOT NULL,
@@ -125,7 +124,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 );
 
 CREATE TABLE IF NOT EXISTS suggestions (
-    id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id    UUID REFERENCES users(id) ON DELETE SET NULL,
     message    TEXT NOT NULL,
     status     TEXT NOT NULL DEFAULT 'pending',
@@ -135,7 +134,7 @@ CREATE TABLE IF NOT EXISTS suggestions (
 -- ─── Settings ────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS settings (
-    id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     key        TEXT UNIQUE NOT NULL,
     value      TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
