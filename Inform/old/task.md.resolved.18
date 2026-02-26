@@ -1,0 +1,18 @@
+# Enterprise Knowledge Base Website - Task Breakdown
+
+- [x] **Phase 1: Foundation (Monorepo & Basic Setup)**
+- [x] **Phase 2: Content Engine**
+- [x] **Phase 3: Polish & Hardening**
+- [x] **Copilot Adoption Package (14 pages)**
+- [x] **Phase 4: Enhancements (Branding & UI)**
+- [ ] **Phase 5: Knowledge Bites Refinements**
+  - [ ] Rename project to "Knowledge Bites"
+  - [x] Schema: Add `parent_id` to Sections for sub-sections
+  - [x] Schema: Add `show_author`, `show_metrics` to Pages
+  - [x] Admin: Add toggles to Page Editor for author/metrics and fix Archived republishing
+  - [x] Admin: Implement Users, Suggestions, and Menus management pages
+  - [x] Admin: Add "Security / Active Directory" placeholder page
+  - [x] Admin: Enhance Module Builder with File Browse/Upload for PDFs and Videos
+  - [ ] Public: Center search bar on Homepage
+  - [ ] Public: Load Hamburger Menu data dynamically from API instead of hardcoding
+  - [ ] Public: Implement PDF Preview / inline viewer and ensure Video player works

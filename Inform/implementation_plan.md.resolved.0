@@ -1,0 +1,60 @@
+# Goal Description
+The objective is to fix a series of bugs and add requested enhancements to the Knowledge Base system, including DB schema updates for icons/settings, module management improvements, file upload/render fixes, and admin UI additions.
+
+## Proposed Changes
+
+### Database & Seeding
+#### [MODIFY] [packages/db/prisma/schema.prisma](file:///home/genai/knowledge_base/packages/db/prisma/schema.prisma)
+- Add [Setting](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/pages/%5Bid%5D/page.tsx#39-50) model (for site brand icon and favicon).
+- Add `icon String?` to `Section` and [Page](file:///home/genai/knowledge_base/apps/antigravity/src/lib/api.ts#72-73) models.
+
+#### [MODIFY] [packages/db/prisma/seed.ts](file:///home/genai/knowledge_base/packages/db/prisma/seed.ts)
+- Remove all unnecessary Copilot pages, modules, and content.
+- Remove invalid references to the non-existent `Menu` model.
+- Retain only Roles, Admin User, and core Sections.
+
+---
+### Backend API
+#### [MODIFY] [apps/backend/src/common/middleware/security-headers.middleware.ts](file:///home/genai/knowledge_base/apps/backend/src/common/middleware/security-headers.middleware.ts)
+- Fix PDF `refused to connect` error by updating `X-Frame-Options` to `SAMEORIGIN` and `frame-ancestors` in CSP to allow `localhost:*`.
+
+#### [MODIFY] [apps/backend/src/files/files.controller.ts](file:///home/genai/knowledge_base/apps/backend/src/files/files.controller.ts)
+- Add support for `IMAGE` module file uploads.
+- Update `MAX_VIDEO_SIZE` and extensions to robustly handle images (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`).
+- Set appropriate `Content-Type` for images in [serveFile](file:///home/genai/knowledge_base/apps/backend/src/files/files.controller.ts#78-103).
+
+---
+### Frontend API Lib
+#### [MODIFY] [apps/antigravity/src/lib/api.ts](file:///home/genai/knowledge_base/apps/antigravity/src/lib/api.ts)
+- Fix video upload bug by appending the `type` field to `FormData` *before* the [file](file:///home/genai/knowledge_base/apps/backend/src/files/files.controller.ts#40-44) field in `filesApi.upload`.
+- Add `settingsApi` to handle fetching and updating Site Settings.
+
+---
+### Admin UI
+#### [NEW] `apps/antigravity/src/app/admin/settings/page.tsx`
+- Build a new settings page allowing the admin to set the "Site Brand Icon" and "Favicon".
+
+#### [MODIFY] [apps/antigravity/src/app/admin/pages/[id]/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/pages/%5Bid%5D/page.tsx)
+- Add `IMAGE` as an option in the module type dropdown.
+- Add an "Edit Module" feature so users can edit modules after creation.
+- Add an `Icon` text input/uploader for the Page settings.
+
+#### [MODIFY] [apps/antigravity/src/app/admin/sections/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/sections/page.tsx)
+- Add an `Icon` text input/uploader for Sections.
+- Fix "organize menu and sections" by ensuring drag-and-drop or ordering logic works properly.
+
+#### [MODIFY] [apps/antigravity/src/app/admin/users/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/users/page.tsx)
+- Add a "Create User" form/modal that includes a Role selection dropdown, addressing the missing user add option.
+
+
+## Verification Plan
+### Automated & Manual Verification
+- Run `npx tsc --noEmit` in `packages/db` to verify `seed.ts` compiles successfully.
+- Run `npx prisma db push` and `npx prisma db seed` to ensure the fresh database seeds correctly without errors.
+- **Manual Verification**: 
+  1. Open Admin Panel -> Settings and upload/set a brand icon and favicon. Verify they save.
+  2. Open Admin Panel -> Pages -> Edit a page, add an `IMAGE` module, upload an image, and verify it renders.
+  3. Edit an existing module and check if the content updates without creating a new module.
+  4. Ensure a PDF module loads correctly in the iframe/viewer without the connection refused error.
+  5. Upload a video file to a VIDEO module and verify it succeeds.
+  6. Go to Admin -> Users, click "Add User", assign a role, and confirm the user appears with the correct role.

@@ -1,0 +1,32 @@
+<current_dom_explanation>
+This is a temporary snapshot of the current page's DOM structure. The DOM will change if you navigate to or interact with another page. Use a tool like browser_get_dom to capture and preserve the DOM in your trajectory if needed for later reference.
+</current_dom_explanation>
+<current_dom>
+[0] (64,49)<a class='flex items-center gap-2 hover:opacity-80 transition-opacity' href='/' />
+	[1] (35,49)<div >EK />
+	[2] (78,49)<span >Platform />
+[3] (672,49)<a class='hover:text-blue-600 underline' href='/'>Home />
+/
+[4] (717,49)<a class='hover:text-blue-600 underline' href='/sections/adoption'>Adoption />
+/
+Microsoft Copilot Adoption Roadmap for Our Organisation
+Identify 30–50 early adopters (Champions)
+Gather feedback through internal form
+Adjust training materials based on real usage
+[5] (230,217)<div  />
+Phase 3 – Scale & Measure (Weeks 7–12)
+Full rollout to 300 users
+Use the Copilot Dashboard to track adoption and usage
+Highlight top 10 success stories in the company newsletter
+[6] (230,455)<div  />
+Copilot Learn Hub (Microsoft Official)
+[7] (365,502)<a class='inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold underline decoration-blue-200 underline-offset-4' href='https://learn.microsoft.com/en-us/copilot'>🔗
+https://learn.microsoft.com/en-us/copilot />
+A
+Admin Team
+Content Creator
+Total Articles Written:
+14
+[8] (693,698)<button class='px-4 py-2 text-xs font-bold text-blue-600 bg-white border border-blue-200 hover:bg-blue-50 rounded shadow-sm transition-colors uppercase tracking-wide'>View All Published Articles />
+
+</current_dom>

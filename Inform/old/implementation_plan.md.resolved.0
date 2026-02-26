@@ -1,0 +1,40 @@
+# Enterprise Knowledge Base Website - Implementation Plan
+
+## Goal Description
+Deliver a secure, maintainable, on-prem enterprise knowledge-base platform unifying Training, Knowledge, Adoption, and Suggestion workflows under a single, role-controlled interface. The technology stack comprises Next.js 14, NestJS, and PostgreSQL 16, optimized for an AlmaLinux 9 environment with VAPT-oriented security in mind.
+
+## User Review Required
+> [!IMPORTANT]
+> Before we initialize the codebase in `/home/genai/knowledge_base`, please clarify the following architectural choices mentioned in your SOW:
+> 1. **Monorepo Tool**: Do you prefer **Turborepo** or **Nx**?
+> 2. **Database ORM**: Do you prefer **TypeORM** or **Prisma** for NestJS (the SOW mentions migrations for both)?
+> 3. **Authentication**: Let's confirm your choice between **Keycloak** or **Zitadel**.
+
+## Proposed Changes
+
+### 1. Foundation & Monorepo
+We will bootstrap a monorepo containing:
+- `apps/frontend`: Next.js 14 (App Router) + React 19, initialized with Tailwind + shadcn/ui.
+- `apps/backend`: NestJS (Node.js 20 LTS) modular backend.
+- `packages/shared`: Shared TypeScript types/DTOs for contracts between frontend and backend.
+
+### 2. Database Schema (PostgreSQL)
+We will define the following core entities:
+- `users`, `roles`, `user_roles`
+- `sections`, `pages`, `modules`
+- `menus`, `audit_logs`, `suggestions`
+
+### 3. Core Modules Implementation
+- **Authentication**: Implementing local admin login with bcrypt + JWT, and placeholders for external OIDC (Keycloak/Zitadel).
+- **RBAC**: Implementing `@Roles()` decorators and `RolesGuard` in NestJS.
+- **Content APIs**: Endpoints for Sections, Pages, and Modules with `dompurify` and secure file serving logic (`/api/files/:id`).
+
+## Verification Plan
+
+### Automated Tests
+- Unit tests for NestJS API endpoints, especially RBAC guards.
+- Static analysis and dependency checks (`npm audit`).
+
+### Manual Verification
+- Local deployment and testing of the application flow: Content creation by an admin -> RBAC filtering -> Rendering on Next.js frontend.
+- Secure file download testing ensuring unauthorized users cannot access PDFs/Videos.

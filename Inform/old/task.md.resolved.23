@@ -1,0 +1,30 @@
+# Enterprise Knowledge Base Website - Task Breakdown
+
+- [x] **Phase 1: Foundation (Monorepo & Basic Setup)**
+- [x] **Phase 2: Content Engine**
+- [x] **Phase 3: Polish & Hardening**
+- [x] **Copilot Adoption Package (14 pages)**
+- [x] **Phase 4: Enhancements (Branding & UI)**
+- [x] **Phase 5: Knowledge Bites Refinements**
+  - [x] Rename project to "Knowledge Bites"
+  - [x] Schema: Add `parent_id` to Sections for sub-sections
+  - [x] Schema: Add `show_author`, `show_metrics` to Pages
+  - [x] Admin: Add toggles to Page Editor for author/metrics and fix Archived republishing
+  - [x] Admin: Implement Users, Suggestions, and Menus management pages
+  - [x] Admin: Add "Security / Active Directory" placeholder page
+  - [x] Admin: Enhance Module Builder with File Browse/Upload for PDFs and Videos
+  - [x] Public: Center search bar on Homepage
+  - [x] Public: Load Hamburger Menu data dynamically from API instead of hardcoding
+  - [x] Public: Implement PDF Preview / inline viewer and ensure Video player works
+
+- [x] **Phase 6: Admin Fixes & 2026 Tech Stack Upgrade**
+  - [x] Upgrade Node.js LTS (24.x) and TypeScript (5.6.x)
+  - [x] Upgrade Next.js (16.x), React (19.2.x), Tailwind CSS (4.2.x)
+  - [x] Upgrade NestJS (11.x) and bcrypt
+  - [x] Upgrade PostgreSQL (18.x) and Prisma (7.4.x)
+  - [x] Upgrade Docker configs (PM2, Nginx)
+  - [x] Implement backend API for Suggestions to store in PostgreSQL
+  - [x] Fix Sections Admin to correctly send null parent_id, avoiding Prisma foreign key errors
+  - [x] Fix Menus Admin to correctly send null parent_id, avoiding Prisma foreign key errors
+  - [ ] Consolidate Menus model into Sections, delete Menus backend & frontend routes
+  - [ ] Update Homepage sidebar to construct navigation dynamically from Sections tree

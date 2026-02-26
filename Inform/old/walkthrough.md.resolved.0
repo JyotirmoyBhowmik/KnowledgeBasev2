@@ -1,0 +1,64 @@
+# Enterprise Knowledge Base — Phase 1 & 2 Walkthrough
+
+## What Was Built
+
+### Monorepo Structure (`/home/genai/knowledge_base`)
+```
+knowledge_base/
+├── apps/
+│   ├── antigravity/     ← Next.js 14 frontend (Tailwind + shadcn/ui)
+│   └── backend/         ← NestJS backend (JWT + RBAC)
+├── packages/
+│   ├── db/              ← Prisma schema + seed script
+│   └── ...              ← shared configs
+└── turbo.json
+```
+
+### Backend (NestJS — port 4000)
+
+| Module | Endpoints | Features |
+|--------|-----------|----------|
+| Auth | `POST /api/auth/login`, `/register` | bcrypt + JWT (8h) |
+| Users | `GET/PATCH /api/users` | role assign, activate/deactivate |
+| Sections | `CRUD /api/sections` | slug lookup, reorder |
+| Pages | `CRUD /api/pages` | publish/archive workflow, soft-delete |
+| Modules | `CRUD /api/modules` | TEXT/PDF/VIDEO/URL, drag-drop reorder |
+| Menus | `CRUD /api/menus` + `/tree` | hierarchical with RBAC filtering |
+| Files | `POST /upload`, `GET /:id` | Multer, size limits, secure serving |
+
+**RBAC**: `@Roles()` decorator + `JwtAuthGuard` + `RolesGuard`
+
+### Frontend (Next.js — port 3000)
+
+| Route | Description |
+|-------|-------------|
+| `/` | Public landing page |
+| `/sections` | Browse all visible sections |
+| `/sections/[slug]` | Section detail with published pages |
+| `/pages/[slug]` | Page viewer (renders all module types) |
+| `/admin/login` | Admin JWT login |
+| `/admin` | Dashboard with quick actions |
+| `/admin/sections` | Sections CRUD |
+| `/admin/pages` | Pages CRUD with publish/archive |
+| `/admin/pages/[id]` | Module editor (add TEXT/PDF/VIDEO/URL) |
+| `/admin/users` | User management + role assignment |
+
+### Database (Prisma + PostgreSQL)
+
+8 models: `User`, `Role`, `UserRole`, `Section`, `Page`, `Module`, `Menu`, `AuditLog`, `Suggestion`
+
+**Seed script** creates: 4 roles, super admin user (`admin@company.com / admin123`), 5 sections, 3 Copilot Adoption sample pages with rich content modules, and 5 menu items.
+
+## Verification
+
+- ✅ NestJS backend compiles cleanly (`npx nest build` — zero errors)
+- ✅ Prisma client generated successfully
+- ✅ All 7 feature modules wired into AppModule
+
+## Next Steps (Phase 3)
+
+- Branding / feature toggles
+- Audit log interceptor
+- Security headers + sanitization
+- CI/CD + AlmaLinux deployment scripts
+- Documentation

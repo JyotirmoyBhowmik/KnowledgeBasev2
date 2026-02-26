@@ -1,0 +1,35 @@
+# Remove Prisma → Raw PostgreSQL Migration
+
+## Phase 1: Database Schema Export
+- [x] [packages/db/schema.sql](file:///home/genai/knowledge_base/packages/db/schema.sql) — standalone DDL (11 tables, indexes)
+- [x] [packages/db/seed.sql](file:///home/genai/knowledge_base/packages/db/seed.sql) — roles, admin user, sections, settings
+
+## Phase 2: DatabaseService
+- [x] [database/database.service.ts](file:///home/genai/knowledge_base/apps/backend/src/database/database.service.ts) — pg.Pool with query/queryOne/execute/transaction
+- [x] [database/database.module.ts](file:///home/genai/knowledge_base/apps/backend/src/database/database.module.ts) — global NestJS module
+
+## Phase 3: Rewrite Services (12 files)
+- [x] [auth/auth.service.ts](file:///home/genai/knowledge_base/apps/backend/src/auth/auth.service.ts)
+- [x] [users/users.service.ts](file:///home/genai/knowledge_base/apps/backend/src/users/users.service.ts)
+- [x] [sections/sections.service.ts](file:///home/genai/knowledge_base/apps/backend/src/sections/sections.service.ts)
+- [x] [pages/pages.service.ts](file:///home/genai/knowledge_base/apps/backend/src/pages/pages.service.ts)
+- [x] [modules/modules.service.ts](file:///home/genai/knowledge_base/apps/backend/src/modules/modules.service.ts)
+- [x] [files/files.controller.ts](file:///home/genai/knowledge_base/apps/backend/src/files/files.controller.ts)
+- [x] [settings/settings.service.ts](file:///home/genai/knowledge_base/apps/backend/src/settings/settings.service.ts)
+- [x] [suggestions/suggestions.service.ts](file:///home/genai/knowledge_base/apps/backend/src/suggestions/suggestions.service.ts)
+- [x] [versions/versions.service.ts](file:///home/genai/knowledge_base/apps/backend/src/versions/versions.service.ts)
+- [x] [templates/templates.service.ts](file:///home/genai/knowledge_base/apps/backend/src/templates/templates.service.ts)
+- [x] [activity/activity.service.ts](file:///home/genai/knowledge_base/apps/backend/src/activity/activity.service.ts)
+- [x] [common/interceptors/audit-log.interceptor.ts](file:///home/genai/knowledge_base/apps/backend/src/common/interceptors/audit-log.interceptor.ts)
+
+## Phase 4-5: Cleanup
+- [x] Updated [app.module.ts](file:///home/genai/knowledge_base/apps/backend/src/app.module.ts) — DatabaseModule replaces PrismaModule
+- [x] Removed PrismaModule imports from 4 child modules
+- [x] Deleted `apps/backend/src/prisma/` directory
+- [x] Removed Prisma from [packages/db/package.json](file:///home/genai/knowledge_base/packages/db/package.json)
+- [x] Replaced `@antigravity/db` with `pg` in backend dependencies
+- [x] Updated [deploy/almalinux-deploy.sh](file:///home/genai/knowledge_base/deploy/almalinux-deploy.sh)
+
+## Phase 6-7: Verification
+- [x] Backend builds cleanly (`npx nest build`)
+- [x] Zero Prisma references in source code

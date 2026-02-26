@@ -1,0 +1,11 @@
+# Tasks
+
+- [ ] Remove unnecessary data and information from [packages/db/prisma/seed.ts](file:///home/genai/knowledge_base/packages/db/prisma/seed.ts)
+- [ ] Add option in admin panel to change site brand icon and favicon
+- [ ] Add icon option in each page
+- [ ] Add image module option
+- [ ] Allow editing modules once added
+- [ ] Fix PDF not showing (refused to connect error)
+- [ ] Fix video module unable to upload file
+- [ ] Add user with role option
+- [ ] Organize menu and sections fix

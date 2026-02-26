@@ -1,0 +1,53 @@
+# Remove Prisma — Migrate to Raw PostgreSQL (`pg`)
+
+## Phase 1: Database Schema Export
+- [ ] Generate full SQL DDL from current Prisma schema (`prisma migrate diff`)
+- [ ] Save as `packages/db/schema.sql` — standalone SQL file that creates all tables, indexes, constraints
+- [ ] Create `packages/db/seed.sql` — SQL version of the seed script
+
+## Phase 2: Replace PrismaService with PostgreSQL Pool
+- [ ] Install `pg` and `@types/pg` in `apps/backend`
+- [ ] Create new `DatabaseService` (replaces `PrismaService`) using `pg.Pool`
+- [ ] Create `DatabaseModule` (replaces `PrismaModule`)
+- [ ] Add query helper methods: `query()`, `queryOne()`, `transaction()`
+
+## Phase 3: Rewrite All Backend Services (Prisma → Raw SQL)
+Each service file needs every Prisma call rewritten to parameterized SQL:
+
+- [ ] `auth/auth.service.ts` — login/register queries
+- [ ] `users/users.service.ts` — findAll, findOne, create, assignRole, activate/deactivate
+- [ ] `sections/sections.service.ts` — CRUD + tree building
+- [ ] `pages/pages.service.ts` — CRUD + publish/archive + approval workflow + trash
+- [ ] `modules/modules.service.ts` — CRUD + reorder
+- [ ] `files/files.controller.ts` — file serving queries
+- [ ] `settings/settings.service.ts` — get/update settings
+- [ ] `suggestions/suggestions.service.ts` — CRUD
+- [ ] `versions/versions.service.ts` — snapshot/restore
+- [ ] `templates/templates.service.ts` — CRUD
+- [ ] `activity/activity.service.ts` — log/query
+- [ ] `common/interceptors/audit-log.interceptor.ts` — audit log insert
+
+## Phase 4: Update Seed Script
+- [ ] Rewrite `packages/db/prisma/seed.ts` → `packages/db/seed.ts` using raw `pg`
+- [ ] Remove dependency on `@prisma/client` in seed
+
+## Phase 5: Remove All Prisma Files & Dependencies
+- [ ] Delete `packages/db/prisma/schema.prisma`
+- [ ] Delete `packages/db/prisma.config.ts`
+- [ ] Delete `packages/db/prisma/` directory
+- [ ] Remove `@prisma/client`, `prisma` from `packages/db/package.json`
+- [ ] Remove `@antigravity/db` dependency from `apps/backend/package.json` (if only used for Prisma)
+- [ ] Delete `apps/backend/src/prisma/` directory (prisma.service.ts, prisma.module.ts)
+- [ ] Update all module imports to use new `DatabaseModule` instead of `PrismaModule`
+
+## Phase 6: Update Deployment & Scripts
+- [ ] Update `deploy/almalinux-deploy.sh` — replace `prisma db push` / `prisma generate` with `psql -f schema.sql`
+- [ ] Update `Almalinux Deployment Guide` — remove Prisma references
+- [ ] Update `docker-compose.yml` if it references Prisma commands
+- [ ] Update `.github/workflows/ci.yml` if it runs Prisma commands
+
+## Phase 7: Verification
+- [ ] Backend builds successfully (`npx nest build`)
+- [ ] All API endpoints work (sections, pages, modules, users, auth, settings, versions, templates, activity)
+- [ ] Seed script runs and populates database
+- [ ] Frontend works with all features intact

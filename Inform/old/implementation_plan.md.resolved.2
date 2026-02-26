@@ -1,0 +1,63 @@
+# Enterprise Knowledge Base Website - Implementation Plan
+
+## Goal Description
+Deliver a secure, maintainable, on-prem enterprise knowledge-base platform unifying Training, Knowledge, Adoption, and Suggestion workflows under a single, role-controlled interface. The technology stack comprises Next.js 14, NestJS, and PostgreSQL 16, optimized for an AlmaLinux 9 environment with VAPT-oriented security in mind.
+
+## Chosen Architectural Stack
+We have locked in the following optimal choices based on the SOW requirements:
+1. **Monorepo Tool**: **Turborepo**
+2. **Database ORM**: **Prisma** 
+3. **Authentication**: **Keycloak**
+
+## Proposed Changes
+
+### 1. Foundation & Monorepo
+We will bootstrap a monorepo containing:
+- `apps/frontend`: Next.js 14 (App Router) + React 19, initialized with Tailwind + shadcn/ui.
+- `apps/backend`: NestJS (Node.js 20 LTS) modular backend.
+- `packages/shared`: Shared TypeScript types/DTOs for contracts between frontend and backend.
+
+### 2. Database Schema (PostgreSQL)
+We will define the following core entities:
+- `users`, `roles`, `user_roles`
+- `sections`, `pages`, `modules`
+- `menus`, `audit_logs`, `suggestions`
+
+### 3. Core Modules Implementation
+- **Authentication**: Implementing local admin login with bcrypt + JWT, and placeholders for external OIDC (Keycloak/Zitadel).
+- **RBAC**: Implementing `@Roles()` decorators and `RolesGuard` in NestJS.
+- **Content APIs**: Endpoints for Sections, Pages, and Modules with `dompurify` and secure file serving logic (`/api/files/:id`).
+
+## Verification Plan
+
+### Automated Tests
+- Unit tests for NestJS API endpoints, especially RBAC guards.
+- Static analysis and dependency checks (`npm audit`).
+
+### Manual Verification
+- Local deployment and testing of the application flow: Content creation by an admin -> RBAC filtering -> Rendering on Next.js frontend.
+- Secure file download testing ensuring unauthorized users cannot access PDFs/Videos.
+
+---
+
+## Phase 5: Knowledge Bites Refinements
+Based on the latest requirements, we will implement the following changes:
+
+### 1. Schema Updates
+- **Pages:** Add boolean flags `show_author` and `show_metrics` (default true) to control visibility of these details on the frontend.
+- **Sections:** Add `parent_id` (String, nullable) to enable nested sub-sections.
+
+### 2. Backend API
+- Update Pages and Sections controllers/services to support the new schema fields.
+- Ensure file upload handles robust video/PDF storage and returns accessible URLs for frontend previews.
+
+### 3. Admin UI
+- **Missing Pages:** Create fully functional pages for Users (`/admin/users`), Menus (`/admin/menus`), and Suggestions (`/admin/suggestions`).
+- **Security Hub:** Create a placeholder interface explaining Active Directory integration steps (`/admin/security`).
+- **Page Editor:** Add UI toggles for Author/Metrics visibility. Ensure the Status dropdown allows moving from "Archived" back to "Published".
+- **Module Builder:** Replace text inputs with actual file browsing/uploading widgets (`<input type="file">`) when selecting PDF or Video module types.
+
+### 4. Public UI
+- **Rebranding:** Update all references of "Enterprise Knowledge Platform" to "Knowledge Bites".
+- **Homepage Structure:** Center the Search Bar, and wire up the Hamburger Menu to dynamic Menu API data instead of hardcoded values.
+- **Media Viewing:** Enhance the article view to display inline PDF Previews (via `<iframe>` or react-pdf) and ensure robust video playback controls.

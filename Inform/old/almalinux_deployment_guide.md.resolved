@@ -1,0 +1,232 @@
+# Enterprise Knowledge Base - AlmaLinux Deployment Guide
+
+This guide provides a comprehensive, step-by-step walkthrough for deploying the Enterprise Knowledge Platform (Knowledge Bites) on an AlmaLinux 9 bare-metal or virtual server. It also covers how to move the program from your local environment to the production server.
+
+---
+
+## 1. Moving the Program to the Server
+
+Before installation, you need to transfer the source code from your local development machine to the AlmaLinux server.
+
+**Option A: Using Git (Recommended)**
+If your code is hosted on a repository (e.g., GitHub, GitLab):
+```bash
+sudo dnf install -y git
+mkdir -p /opt/knowledge-base
+cd /opt
+sudo git clone <your-repo-url> knowledge-base
+cd knowledge-base
+```
+
+**Option B: Using SCP / SFTP (Direct Transfer)**
+If you have a local copy and want to copy it directly over SSH to your AlmaLinux server:
+```bash
+# Run this on your LOCAL machine
+scp -r ./knowledge_base user@<server-ip>:/tmp/knowledge-base
+
+# Then SSH into your server and move it to the final directory:
+ssh user@<server-ip>
+sudo mv /tmp/knowledge-base /opt/knowledge-base
+cd /opt/knowledge-base
+```
+
+---
+
+## 2. Install System Dependencies
+
+You will need PostgreSQL for the database, Nginx for the reverse proxy, and Node.js 24 (LTS) for the application runtime.
+
+**Install PostgreSQL & Nginx:**
+```bash
+sudo dnf update -y
+sudo dnf install -y nginx postgresql-server postgresql
+
+# Initialize the PostgreSQL Database
+sudo postgresql-setup --initdb
+
+# Enable and start services to run on boot
+sudo systemctl enable --now postgresql nginx
+```
+
+**Install Node.js 24 LTS and PM2:**
+```bash
+# Add NodeSource RPM repository for Node 24
+curl -fsSL https://rpm.nodesource.com/setup_24.x | sudo bash -
+
+# Install Node.js
+sudo dnf install -y nodejs
+
+# Verify installation (should print v24.x.x)
+node -v
+
+# Install PM2 globally for process management
+sudo npm install -g pm2
+```
+
+---
+
+## 3. Database Setup
+
+Configure your PostgreSQL database for the application.
+
+```bash
+# Switch to postgres user and create the database
+sudo -u postgres psql -c "CREATE DATABASE knowledge_base;"
+
+# Set a password for the default postgres user (Change 'changeme' to a strong password)
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'changeme';"
+```
+
+---
+
+## 4. File Storage Setup
+
+The application accepts PDF and Video uploads. We need to create a dedicated directory for these assets and ensure the application has write access.
+
+```bash
+# Create the storage directories (matching your backend configuration)
+sudo mkdir -p /var/lib/kb/pdfs
+sudo mkdir -p /var/lib/kb/videos
+
+# Grant ownership to your current deployment user
+sudo chown -R $(whoami):$(whoami) /var/lib/kb
+```
+
+---
+
+## 5. Application Configuration & Build
+
+Navigate to the application directory and prepare the build.
+
+```bash
+cd /opt/knowledge-base
+
+# Copy environment files (if not already moved) and update the DATABASE_URL
+# Example packages/db/.env: DATABASE_URL="postgresql://postgres:changeme@localhost:5432/knowledge_base?schema=public"
+
+# Install all monorepo dependencies (using legacy-peer-deps to avoid React 19 / eslint conflicts)
+npm install --legacy-peer-deps
+
+# Push the Prisma schema to the database (Creates tables)
+cd packages/db
+npx prisma db push --accept-data-loss
+npx prisma generate
+cd ../..
+
+# Build the NestJS Backend
+cd apps/backend
+npx nest build
+cd ../..
+
+# Build the Next.js Frontend
+cd apps/antigravity
+npm run build
+cd ../..
+```
+
+---
+
+## 6. Running the Application with PM2
+
+We will use PM2 to keep the backend and frontend running continuously and restart them on system reboots.
+
+```bash
+cd /opt/knowledge-base
+
+# Start the NestJS Backend on Port 4000
+cd apps/backend
+pm2 start dist/main.js --name kb-backend --env PORT=4000
+
+# Start the Next.js Frontend on Port 3000
+cd ../antigravity
+pm2 start "npx next start" --name kb-frontend
+
+# Save the PM2 process list and configure startup on boot
+pm2 save
+pm2 startup
+# (Run the command that pm2 startup outputs to your terminal)
+```
+
+---
+
+## 7. Nginx Reverse Proxy Setup (Optional but Recommended)
+
+To serve your application on port 80 (HTTP) instead of 3000, configure Nginx as a reverse proxy.
+
+```bash
+sudo nano /etc/nginx/conf.d/knowledge-base.conf
+```
+
+Add the following configuration:
+
+```nginx
+server {
+    listen 80;
+    server_name your_domain_or_IP;
+
+    # Route traffic to the Next.js frontend
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Route API traffic to the NestJS backend
+    location /api/ {
+        proxy_pass http://localhost:4000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Restart Nginx to apply changes:
+```bash
+sudo systemctl restart nginx
+```
+
+If you have a firewall enabled (firewalld), allow HTTP and HTTPS traffic:
+```bash
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload
+```
+
+### Securing Nginx with HTTPS (SSL/TLS)
+
+To enable secure ports (HTTPS on port 443), install Certbot and the Nginx plugin to automatically issue and configure Let's Encrypt certificates:
+
+```bash
+# Install EPEL repository (Required for Certbot)
+sudo dnf install -y epel-release
+
+# Install Certbot and the Nginx plugin
+sudo dnf install -y certbot python3-certbot-nginx
+
+# Run Certbot to automatically configure SSL for your domain
+sudo certbot --nginx -d your_domain.com
+```
+
+Certbot will automatically update your `/etc/nginx/conf.d/knowledge-base.conf` file to listen on secure port 443 and terminate TLS.
+
+## 8. Automated Script Alternative
+
+If you prefer to automate steps 2-6, you can run the provided bash deployment script located in your project directory:
+
+```bash
+cd /opt/knowledge-base/deploy
+chmod +x almalinux-deploy.sh
+./almalinux-deploy.sh
+```
+
+> **Note:** Make sure you verify the database passwords and system paths in the script before running it.
+
+---
+**Deployment Complete.**
+You should now be able to access the Enterprise Knowledge Base via `http://<server-ip>`.

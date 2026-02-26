@@ -1,0 +1,6 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary":  "Complete walkthrough of migrating the Knowledge Base backend from Prisma ORM to raw PostgreSQL using the pg driver. Covers schema export, DatabaseService creation, service rewrites, cleanup, and build verification.",
+  "updatedAt":  "2026-02-26T17:41:55.583781777Z",
+  "version":  "2"
+}

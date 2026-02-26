@@ -1,0 +1,30 @@
+# Enterprise Knowledge Base Website - Task Breakdown
+
+- [x] **Phase 1: Foundation (Monorepo & Basic Setup)**
+  - [x] Initialize Monorepo (Turborepo) in `/home/genai/knowledge_base`
+  - [x] Setup NestJS backend
+  - [x] Setup Next.js 14 frontend (Antigravity) with shadcn/ui
+  - [x] Configure PostgreSQL database ORM (Prisma)
+  - [x] Base database schema migration (Users, Roles)
+  - [x] Local Admin Authentication & RBAC groundwork
+- [x] **Phase 2: Content Engine**
+  - [x] API & UI for Sections (CRUD)
+  - [x] API & UI for Pages (CRUD)
+  - [x] API & UI for Modules (Text, PDF, Video, URL)
+  - [x] Secure File handling (Upload/Download with permissions)
+  - [x] Hierarchical Menu system implementation
+  - [x] Public vs Internal routing and visibility
+- [x] **Phase 3: Polish & Hardening**
+  - [x] Full Copilot Adoption Package seed data (12 pages, all modules)
+  - [x] Audit log interceptor (before/after JSONB diff)
+  - [x] Security headers (HSTS, CSP, X-Frame-Options, nosniff)
+  - [x] Docker Compose + Dockerfiles + Nginx reverse proxy
+  - [x] AlmaLinux bare-metal deployment script
+  - [x] CI/CD pipeline (GitHub Actions)
+  - [x] Documentation (README)
+- [ ] **Phase 4: Enhancements (Optional/Additional)**
+  - [ ] Redis caching & Rate Limiting
+  - [ ] Full-Text Search
+  - [ ] Dark Mode & Accessibility
+  - [ ] Branding (logo upload, primary colour picker)
+  - [ ] Feature toggles

@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Step-by-step deployment guide for moving the Knowledge Base from desktop to production server (AlmaLinux/RHEL), including granular PostgreSQL setup, schema migration, backend/frontend builds, PM2 restart, Nginx config, and a comprehensive troubleshooting section.",
+  "updatedAt":  "2026-02-26T17:45:22.740803819Z"
+}

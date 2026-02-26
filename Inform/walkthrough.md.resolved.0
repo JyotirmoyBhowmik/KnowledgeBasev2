@@ -1,0 +1,34 @@
+# Knowledge Base Enhancements - Walkthrough
+
+All requested enhancements and bug fixes have been implemented successfully. Below is a detailed walkthrough of the changes made to the system.
+
+## 1. Database Seed Cleanup
+- Cleaned up [packages/db/prisma/seed.ts](file:///home/genai/knowledge_base/packages/db/prisma/seed.ts) to remove unnecessary sample/placeholder data.
+- The default seeding now only creates the essential roles (`super_admin`, [admin](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin), `editor`, `viewer`), the initial Super Admin account, and the core site Sections.
+- This ensures clean databases on fresh deployments.
+
+## 2. Global Site Icons
+- Added a new [Setting](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/settings/page.tsx#11-25) model to the Prisma schema to store global configuration options.
+- Created [/admin/settings/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/settings/page.tsx) allowing Super Admins to manage the **Site Brand Icon** (emoji or SVG) and **Favicon**.
+- Developed the necessary API endpoints in the backend to manage these settings dynamically.
+
+## 3. Page and Section Icons
+- Updated the database schema to include an `icon` field for both [Page](file:///home/genai/knowledge_base/apps/antigravity/src/app/page.tsx#7-226) and [Section](file:///home/genai/knowledge_base/apps/antigravity/src/app/page.tsx#21-31) models.
+- Updated the Admin Pages form to allow configuring custom icons per page.
+- Updated the Admin Sections form to allow configuring custom icons for each section.
+
+## 4. Enhanced Module Editor
+- **Image Support**: Added the `IMAGE` module type inside the page editor. It supports common extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`) up to 20MB. Image files are properly served with their respective content types.
+- **Editing Modules**: Implemented an "Edit" feature in the module list. You can now revisit an existing `TEXT`, `IMAGE`, `VIDEO`, `URL`, or `PDF` module, modify its properties or upload a new file, and save it.
+
+## 5. Security & Upload Bugs Fixed
+- **PDF Rendering**: Changed the highly restrictive `X-Frame-Options` and `Content-Security-Policy` headers. PDFs will no longer show a "refused to connect" error when rendered inside iframes on the platform.
+- **Video Uploads**: Fixed an issue in the frontend API client ([api.ts](file:///home/genai/knowledge_base/apps/antigravity/src/lib/api.ts)) where the `FormData` fields were appended in the wrong order. Multer requires the `type` field to be sent *before* the file. This allows correct destination folder resolution (`videos`, `pdfs`, or `images`).
+
+## 6. User Management
+- Integrated a completely new "Add User" feature on the Admin User Management page (`/admin/users`).
+- Admins can now manually create user accounts, supplying the user's name, email, and selecting their initial platform Role ([admin](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin), `editor`, or default `user`).
+
+## 7. Portal Navigation Fixes
+- Re-architected the main Portal Sidebar ([app/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/page.tsx)) to properly organize and render nested menu sections.
+- The menu tree automatically renders child sections and gracefully uses the newly configured category icons instead of the hardcoded defaults.

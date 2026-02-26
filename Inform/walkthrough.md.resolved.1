@@ -1,0 +1,43 @@
+# KB Phase 2 — Walkthrough
+
+## What Was Built
+
+### Database Schema ([schema.prisma](file:///home/genai/knowledge_base/packages/db/prisma/schema.prisma))
+- **New models**: `PageVersion`, `PageTemplate`, `ActivityLog`
+- **Extended Module**: Added `metadata Json?` field for TABLE/CODE/EMBED data
+- **Extended Page**: Added `reviewed_by_id`, `reviewed_at`, `template_id`, and `"review"` status for approval workflow
+
+### Backend Services
+| Module | Files | Purpose |
+|--------|-------|---------|
+| **Versions** | `versions/` (service, controller, module) | Page snapshot, version listing, restore |
+| **Templates** | `templates/` (service, controller, module) | CRUD for page templates with presets |
+| **Activity** | `activity/` (service, controller, module) | User activity logging and querying |
+| **Pages** (extended) | [pages.service.ts](file:///home/genai/knowledge_base/apps/backend/src/pages/pages.service.ts), [pages.controller.ts](file:///home/genai/knowledge_base/apps/backend/src/pages/pages.controller.ts) | Approval workflow + trash management |
+
+### Frontend Pages & Components
+| Page | Path | Features |
+|------|------|----------|
+| **Rich Text Editor** | [components/RichTextEditor.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/components/RichTextEditor.tsx) | TipTap with toolbar (bold, italic, headings, lists, code, links, images, undo/redo) |
+| **Admin Page Editor** | `admin/pages/[id]/page.tsx` | All 8 module types, drag-and-drop reorder, version history, approval workflow buttons |
+| **Templates** | [admin/templates/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/templates/page.tsx) | CRUD + quick-start presets (FAQ, SOP, Tutorial) |
+| **Trash** | [admin/trash/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/trash/page.tsx) | Soft-deleted page listing with restore/permanent delete |
+| **Activity Log** | [admin/activity/page.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/activity/page.tsx) | Filterable activity table |
+| **Public Page View** | `pages/[slug]/page.tsx` | Added TABLE, CODE, EMBED, IMAGE renderers |
+| **Admin Sidebar** | [admin/layout.tsx](file:///home/genai/knowledge_base/apps/antigravity/src/app/admin/layout.tsx) | Added Templates, Activity, Trash, Settings links |
+
+### API Client ([api.ts](file:///home/genai/knowledge_base/apps/antigravity/src/lib/api.ts))
+Added: `versionsApi`, `templatesApi`, `activityApi`, and extended `pagesApi` with [submitForReview](file:///home/genai/knowledge_base/apps/backend/src/pages/pages.service.ts#90-97), [approve](file:///home/genai/knowledge_base/apps/backend/src/pages/pages.service.ts#98-109), [reject](file:///home/genai/knowledge_base/apps/backend/src/pages/pages.controller.ts#61-64), [getTrashed](file:///home/genai/knowledge_base/apps/antigravity/src/lib/api.ts#74-75), [restore](file:///home/genai/knowledge_base/apps/backend/src/pages/pages.controller.ts#71-74), [permanentDelete](file:///home/genai/knowledge_base/apps/antigravity/src/lib/api.ts#77-79). CDN-aware `filesApi.getFileUrl()`.
+
+## Build Verification
+- ✅ **Backend**: `npx nest build` — compiles successfully
+- ⚠️ **Frontend**: `npm run build` fails due to Node.js 18 (Next.js 16 requires ≥20). This is a **pre-existing environment constraint**, not related to our changes. The dev server (`npm run dev`) works fine.
+
+## Deployment Steps
+After transferring code to your production server (Node ≥20):
+```bash
+cd packages/db && npx prisma db push && npx prisma generate
+cd apps/backend && npx nest build
+cd apps/antigravity && npm install --legacy-peer-deps && npm run build
+pm2 restart all
+```

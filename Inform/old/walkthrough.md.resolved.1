@@ -1,0 +1,59 @@
+# Enterprise Knowledge Base — Phases 1–3 Walkthrough
+
+## Summary
+Built a complete enterprise knowledge-base platform (**Antigravity**) across 3 phases, matching the SOW requirements. Backend compiles cleanly with zero errors.
+
+## Architecture
+```
+knowledge_base/
+├── apps/
+│   ├── antigravity/     ← Next.js 14 (10 routes, Tailwind)
+│   └── backend/         ← NestJS (7 modules, RBAC, audit logging)
+├── packages/db/         ← Prisma (9 models) + seed (12 Copilot pages)
+├── deploy/              ← Nginx, AlmaLinux script
+├── docker-compose.yml   ← Full-stack containerised deployment
+└── .github/workflows/   ← CI/CD
+```
+
+## What Was Built
+
+### Phase 1 — Foundation
+| Component | Details |
+|-----------|---------|
+| Monorepo | Turborepo with shared `packages/db` |
+| Auth | JWT + bcrypt + `@Roles()` decorator + `JwtAuthGuard` + `RolesGuard` |
+| Database | 9 Prisma models: User, Role, UserRole, Section, Page, Module, Menu, AuditLog, Suggestion |
+
+### Phase 2 — Content Engine
+| Module | Endpoints | Features |
+|--------|-----------|----------|
+| Sections | CRUD + slug + reorder | Configurable visibility |
+| Pages | CRUD + publish/archive | Soft-delete, status workflow |
+| Modules | CRUD + reorder | TEXT/PDF/VIDEO/URL types |
+| Menus | CRUD + `/tree` | Hierarchical with RBAC filtering |
+| Files | Upload + serve | Multer, 100MB PDF / 500MB video limits |
+| Frontend | 10 routes | Public browse + Admin CRUD + Module editor |
+
+### Phase 3 — Polish & Hardening
+| Deliverable | Implementation |
+|-------------|----------------|
+| Audit Logging | [AuditLogInterceptor](file:///home/genai/knowledge_base/apps/backend/src/common/interceptors/audit-log.interceptor.ts) — before/after JSONB for all mutations |
+| Security Headers | [SecurityHeadersMiddleware](file:///home/genai/knowledge_base/apps/backend/src/common/middleware/security-headers.middleware.ts) — HSTS, CSP, X-Frame-Options DENY, nosniff |
+| Nginx | [nginx.conf](file:///home/genai/knowledge_base/deploy/nginx/nginx.conf) — 30r/s API, 5r/m login rate limiting |
+| Docker | [docker-compose.yml](file:///home/genai/knowledge_base/docker-compose.yml) — PG16 + Backend + Frontend + Nginx |
+| Bare-Metal | [almalinux-deploy.sh](file:///home/genai/knowledge_base/deploy/almalinux-deploy.sh) — PM2 + systemd |
+| CI/CD | [ci.yml](file:///home/genai/knowledge_base/.github/workflows/ci.yml) — lint, build, audit, SSH deploy |
+| Seed Data | 12 Copilot Adoption pages with rich HTML modules |
+| Docs | [README.md](file:///home/genai/knowledge_base/README.md) |
+
+### Pre-loaded Content (12 Pages)
+| Section | Pages |
+|---------|-------|
+| Adoption (3) | Roadmap, Business Value & ROI, Security & Privacy |
+| Training (5) | Chat, Excel Mastery, PowerPoint, Word, Role Playbooks |
+| Knowledge (4) | Prompt Library, Top 20 Use Cases, Troubleshooting, Success Stories |
+
+## Verification
+- ✅ NestJS backend compiles cleanly (`npx nest build` — zero errors)
+- ✅ Prisma client generated successfully
+- ✅ All 7 modules + audit interceptor + security middleware wired

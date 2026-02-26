@@ -1,0 +1,98 @@
+<current_dom_explanation>
+This is a temporary snapshot of the current page's DOM structure. The DOM will change if you navigate to or interact with another page. Use a tool like browser_get_dom to capture and preserve the DOM in your trajectory if needed for later reference.
+</current_dom_explanation>
+<current_dom>
+EK
+Menu
+[0] (94,191)<a class='flex items-start gap-4 px-6 py-3 text-sm font-medium text-blue-100 hover:bg-blue-500 hover:text-white transition-colors' href='/sections' />
+	[1] (27,193)<span >🏠 />
+	[2] (92,186)<div  />
+		[3] (92,186)<span >Knowledge Base />
+[4] (94,290)<a class='flex items-start gap-4 px-6 py-3 text-sm font-medium text-blue-100 hover:bg-blue-500 hover:text-white transition-colors' href='/sections/training' />
+	[5] (27,282)<span >📚 />
+	[6] (76,290)<div  />
+		[7] (76,276)<span >Training />
+		[8] (76,310)<span >Learning paths />
+[9] (94,398)<a class='flex items-start gap-4 px-6 py-3 text-sm font-medium text-blue-100 hover:bg-blue-500 hover:text-white transition-colors' href='/sections/knowledge' />
+	[10] (27,390)<span >🧠 />
+	[11] (78,398)<div  />
+		[12] (78,384)<span >Knowledge />
+		[13] (78,418)<span >Docs & guides />
+[14] (94,505)<a class='flex items-start gap-4 px-6 py-3 text-sm font-medium text-blue-100 hover:bg-blue-500 hover:text-white transition-colors' href='/sections/adoption' />
+	[15] (27,498)<span >🚀 />
+	[16] (75,505)<div  />
+		[17] (75,492)<span >Adoption />
+		[18] (75,525)<span >Best practices />
+[19] (94,613)<a class='flex items-start gap-4 px-6 py-3 text-sm font-medium text-blue-100 hover:bg-blue-500 hover:text-white transition-colors' href='/sections/contact-suggest' />
+	[20] (27,606)<span >💡 />
+	[21] (81,613)<div  />
+		[22] (81,599)<span >Suggestions />
+		[23] (81,633)<span >Feedback />
+🔍
+[24] (375,49)<input class='w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-inner' placeholder='Search recent articles...' />
+Enterprise Knowledge Platform
+EK
+[25] (594,549)<div class='flex-1 overflow-auto p-8 bg-slate-50' scrollable='true' />
+	Recent Published Pages
+	Discover the latest knowledge articles and guides.
+	Top 10 Latest
+	[26] (331,438)<a class='bg-white border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full' href='/pages/copilot-implementation-checklist' />
+		[27] (331,359)<div  />
+			[28] (247,359)<div >📄 />
+			[29] (400,342)<span >25 Feb 2026 />
+		[30] (331,455)<h2 >Copilot KB Implementation Checklist (2–3 Days) />
+		[31] (331,528)<div  />
+			[32] (255,541)<p >Adoption />
+				[33] (235,541)<span >📂 />
+			[34] (416,541)<span  />
+				[35] (428,541)<span  />
+	[36] (588,438)<a class='bg-white border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full' href='/pages/copilot-enterprise-enhancements' />
+		[37] (588,359)<div  />
+			[38] (504,359)<div >📄 />
+			[39] (657,342)<span >25 Feb 2026 />
+		[40] (588,455)<h2 >Enterprise-Grade Enhancements for Copilot Adoption />
+		[41] (588,528)<div  />
+			[42] (512,541)<p >Adoption />
+				[43] (492,541)<span >📂 />
+			[44] (674,541)<span  />
+				[45] (685,541)<span  />
+	[46] (846,438)<a class='bg-white border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full' href='/pages/copilot-success-stories' />
+		[47] (846,359)<div  />
+			[48] (762,359)<div >📄 />
+			[49] (915,342)<span >25 Feb 2026 />
+		[50] (846,455)<h2 >Copilot Success Stories from Our Teams />
+		[51] (846,528)<div  />
+			[52] (774,541)<p >Knowledge />
+				[53] (750,541)<span >📂 />
+			[54] (931,541)<span  />
+				[55] (943,541)<span  />
+	[56] (331,783)<a class='bg-white border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full' href='/pages/copilot-troubleshooting' />
+		[57] (331,704)<div  />
+			[58] (247,704)<div >📄 />
+			[59] (400,687)<span >25 Feb 2026 />
+		[60] (331,800)<h2 >Troubleshooting & Limitations (2026 Edition) />
+		[61] (331,873)<div  />
+			[62] (259,886)<p >Knowledge />
+				[63] (235,886)<span >📂 />
+	[64] (588,783)<a class='bg-white border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full' href='/pages/copilot-top-use-cases' />
+		[65] (588,704)<div  />
+			[66] (504,704)<div >📄 />
+			[67] (657,687)<span >25 Feb 2026 />
+		[68] (588,800)<h2 >Top 20 Copilot Use Cases & Before/After Examples />
+		[69] (588,873)<div >Knowledge />
+			📂
+			Knowledge
+			[70] (674,886)<span  />
+				[71] (685,886)<span  />
+	[72] (846,783)<a class='bg-white border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-md hover:-translate-y-1 transition-all group flex flex-col h-full' href='/pages/copilot-prompt-library' />
+		[73] (846,704)<div  />
+			[74] (762,704)<div >📄 />
+			[75] (915,687)<span >25 Feb 2026 />
+		[76] (846,800)<h2 >Copilot Prompt Library (200+ Prompts) />
+		[77] (846,873)<div  />
+			[78] (774,886)<p >Knowledge />
+				[79] (750,886)<span >📂 />
+			[80] (931,886)<span  />
+				[81] (943,886)<span  />
+
+</current_dom>
