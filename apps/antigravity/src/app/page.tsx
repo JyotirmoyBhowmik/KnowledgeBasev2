@@ -81,9 +81,13 @@ export default function HomePage() {
       >
         <div className="px-6 py-6 border-b border-slate-800 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 text-white rounded flex items-center justify-center font-bold text-lg">
-              KB
-            </div>
+            {siteSettings?.favicon ? (
+              <img src={siteSettings.favicon} alt="Logo" className="w-8 h-8 rounded object-contain bg-white" />
+            ) : (
+              <div className="w-8 h-8 bg-blue-600 text-white rounded flex items-center justify-center font-bold text-lg">
+                KB
+              </div>
+            )}
             <div className="font-bold text-lg tracking-tight">Menu</div>
           </div>
           <button onClick={() => setIsSidebarOpen(false)} className="text-slate-400 hover:text-white p-2 text-xl font-bold">×</button>
