@@ -64,6 +64,24 @@ export default function PublicPageView() {
     const dislikes = page?.dislikes || 0;
     const readers = page?.readers || 0;
 
+    const isFullscreen = modules.some(m => m.type === 'HTML' && (m.metadata as any)?.fullscreen);
+
+    if (isFullscreen) {
+        return (
+            <div className="w-full h-screen overflow-hidden bg-white">
+                {modules.map((mod: any, i: number) => mod.type === 'HTML' && (
+                    <iframe
+                        key={mod.id}
+                        srcDoc={mod.content}
+                        className="w-full h-full border-none"
+                        title={mod.title || "Experience Hub"}
+                        sandbox="allow-scripts allow-same-origin allow-popups"
+                    />
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
             <nav className="flex items-center justify-between px-8 py-4 border-b border-slate-200 bg-white shadow-sm sticky top-0 z-30">
@@ -214,6 +232,17 @@ export default function PublicPageView() {
                                                         src={(mod.metadata as any).embedUrl}
                                                         className="w-full min-h-[400px] border-none"
                                                         title={mod.title || "Embedded Content"}
+                                                        sandbox="allow-scripts allow-same-origin allow-popups"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                            )}
+                                            {mod.type === "HTML" && (
+                                                <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200 bg-white">
+                                                    <iframe
+                                                        srcDoc={mod.content}
+                                                        className="w-full min-h-[600px] border-none"
+                                                        title={mod.title || "Custom UI component"}
                                                         sandbox="allow-scripts allow-same-origin allow-popups"
                                                         loading="lazy"
                                                     />
