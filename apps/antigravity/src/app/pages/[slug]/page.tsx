@@ -80,8 +80,8 @@ export default function PublicPageView() {
                 </div>
             </nav>
 
-            <main className="max-w-4xl mx-auto px-4 py-8">
-                <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-2xl shadow-sm">
+            <main className="w-full px-4 sm:px-8 lg:px-16 xl:px-24 py-8">
+                <div className="bg-white border border-slate-200 p-6 md:p-10 rounded-2xl shadow-sm w-full">
                     {/* Compact Top Header */}
                     <div className="mb-6">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-3 tracking-tight leading-tight">{page.title}</h1>

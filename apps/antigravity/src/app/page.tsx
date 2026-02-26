@@ -154,7 +154,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <div className="flex-1 p-4 sm:p-8 lg:px-16 xl:px-24 w-full">
           {/* Attractive Hero Area */}
           <div className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-2xl p-8 md:p-12 mb-10 text-white shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-80 h-80 bg-white opacity-5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>

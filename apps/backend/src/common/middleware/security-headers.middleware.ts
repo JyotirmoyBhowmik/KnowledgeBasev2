@@ -11,20 +11,25 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
         // HSTS — enforce HTTPS
         res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
-        // Prevent clickjacking
-        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-
         // Prevent MIME-type sniffing
         res.setHeader('X-Content-Type-Options', 'nosniff');
 
         // Referrer policy
         res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        // Content Security Policy (strict)
-        res.setHeader(
-            'Content-Security-Policy',
-            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://localhost:*; frame-ancestors 'self' http://localhost:3000;",
-        );
+        // For file serving routes (PDFs, videos, images), skip iframe-blocking headers
+        const isFileRoute = req.path.startsWith('/api/files/');
+
+        if (!isFileRoute) {
+            // Prevent clickjacking (skip for files so PDFs render in iframes)
+            res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+
+            // Content Security Policy
+            res.setHeader(
+                'Content-Security-Policy',
+                "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://localhost:*; frame-src 'self' blob: data:; object-src 'self'; frame-ancestors 'self' http://localhost:3000;",
+            );
+        }
 
         // Permissions Policy
         res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
