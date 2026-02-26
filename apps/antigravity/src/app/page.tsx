@@ -2,21 +2,37 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { publicApi, sectionsApi } from "@/lib/api";
+import { publicApi, sectionsApi, API_BASE } from "@/lib/api";
 
 export default function HomePage() {
   const [recentPages, setRecentPages] = useState<any[]>([]);
   const [sidebarItems, setSidebarItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [siteSettings, setSiteSettings] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    Promise.all([publicApi.getRecentPages(), sectionsApi.getTree()])
-      .then(([pagesData, sectionsTreeData]) => {
-        setRecentPages(pagesData);
+    const fetchData = async () => {
+      try {
+        const [recentPagesData, sectionsTreeData, settingsRes] = await Promise.all([
+          publicApi.getRecentPages(),
+          sectionsApi.getTree(),
+          fetch(`${API_BASE}/api/settings`).then(r => r.json()).catch(() => [])
+        ]);
+
+        setRecentPages(recentPagesData);
+
+        const formattedSettings: any = {};
+        if (Array.isArray(settingsRes)) {
+          settingsRes.forEach((s: any) => { formattedSettings[s.key] = s.value; });
+          if (formattedSettings.favicon && formattedSettings.favicon.startsWith('/api')) {
+            formattedSettings.favicon = `${API_BASE}${formattedSettings.favicon}`;
+          }
+        }
+        setSiteSettings(formattedSettings);
 
         const mapSection = (m: any): any => ({
           label: m.name || m.label,
@@ -31,9 +47,13 @@ export default function HomePage() {
           mappedMenus.push({ label: "Admin Portal", href: "/admin", icon: "⚙️", desc: "Configuration" });
         }
         setSidebarItems(mappedMenus);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   // Live search with debounce
@@ -140,11 +160,15 @@ export default function HomePage() {
 
           <div className="flex items-center justify-end gap-3 w-1/3">
             <span className="text-sm font-bold text-slate-800 hidden md:block tracking-tight">
-              Knowledge Bites
+              {siteSettings?.site_name || "Knowledge Platform"}
             </span>
-            <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-blue-100">
-              KB
-            </div>
+            {siteSettings?.favicon ? (
+              <img src={siteSettings.favicon} alt="Logo" className="w-8 h-8 rounded-lg object-contain bg-white shadow-sm ring-2 ring-slate-100" />
+            ) : (
+              <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-blue-100">
+                KB
+              </div>
+            )}
           </div>
         </header>
 
