@@ -1,45 +1,64 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { DatabaseService } from '../database/database.service';
 import { CreateSuggestionDto } from './dto/create-suggestion.dto';
 import { UpdateSuggestionDto } from './dto/update-suggestion.dto';
 
 @Injectable()
 export class SuggestionsService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(private readonly db: DatabaseService) { }
 
-    create(dto: CreateSuggestionDto, userId: string) {
-        return this.prisma.suggestion.create({
-            data: {
-                message: dto.message,
-                user_id: userId,
-            },
-        });
+    async create(dto: CreateSuggestionDto, userId: string) {
+        return this.db.queryOne(
+            `INSERT INTO suggestions (message, user_id) VALUES ($1, $2) RETURNING *`,
+            [dto.message, userId],
+        );
     }
 
-    findAll() {
-        return this.prisma.suggestion.findMany({
-            orderBy: { created_at: 'desc' },
-            include: { user: { select: { name: true, email: true } } },
-        });
+    async findAll() {
+        return this.db.query(
+            `SELECT s.*, json_build_object('name', u.name, 'email', u.email) AS user
+             FROM suggestions s
+             LEFT JOIN users u ON u.id = s.user_id
+             ORDER BY s.created_at DESC`,
+        );
     }
 
     async findOne(id: string) {
-        const suggestion = await this.prisma.suggestion.findUnique({
-            where: { id },
-            include: { user: { select: { name: true, email: true } } },
-        });
+        const suggestion = await this.db.queryOne(
+            `SELECT s.*, json_build_object('name', u.name, 'email', u.email) AS user
+             FROM suggestions s
+             LEFT JOIN users u ON u.id = s.user_id
+             WHERE s.id = $1`,
+            [id],
+        );
         if (!suggestion) throw new NotFoundException(`Suggestion ${id} not found`);
         return suggestion;
     }
 
-    update(id: string, dto: UpdateSuggestionDto) {
-        return this.prisma.suggestion.update({
-            where: { id },
-            data: dto,
-        });
+    async update(id: string, dto: UpdateSuggestionDto) {
+        const fields: string[] = [];
+        const values: any[] = [];
+        let idx = 1;
+
+        for (const [key, value] of Object.entries(dto)) {
+            if (value !== undefined) {
+                fields.push(`${key} = $${idx}`);
+                values.push(value);
+                idx++;
+            }
+        }
+
+        if (fields.length === 0) return this.findOne(id);
+        values.push(id);
+
+        return this.db.queryOne(
+            `UPDATE suggestions SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+            values,
+        );
     }
 
-    remove(id: string) {
-        return this.prisma.suggestion.delete({ where: { id } });
+    async remove(id: string) {
+        await this.db.execute(`DELETE FROM suggestions WHERE id = $1`, [id]);
+        return { deleted: true };
     }
 }

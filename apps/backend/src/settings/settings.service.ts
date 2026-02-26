@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class SettingsService {
-    constructor(private prisma: PrismaService) { }
+    constructor(private db: DatabaseService) { }
 
     async findAll() {
-        return this.prisma.setting.findMany();
+        return this.db.query(`SELECT * FROM settings`);
     }
 
     async findOne(key: string) {
-        return this.prisma.setting.findUnique({
-            where: { key },
-        });
+        return this.db.queryOne(`SELECT * FROM settings WHERE key = $1`, [key]);
     }
 
     async update(key: string, value: string) {
-        return this.prisma.setting.upsert({
-            where: { key },
-            update: { value },
-            create: { key, value },
-        });
+        // Upsert: insert or update
+        return this.db.queryOne(
+            `INSERT INTO settings (key, value) VALUES ($1, $2)
+             ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()
+             RETURNING *`,
+            [key, value],
+        );
     }
 }

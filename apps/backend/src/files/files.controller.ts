@@ -1,14 +1,5 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Res,
-  UploadedFile,
-  UseInterceptors,
-  BadRequestException,
-  NotFoundException,
-  Body,
+  Controller, Get, Post, Param, Res, UploadedFile, UseInterceptors, BadRequestException, NotFoundException, Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -16,19 +7,19 @@ import { Response } from 'express';
 import { extname, join } from 'path';
 import { existsSync } from 'fs';
 import { randomUUID } from 'crypto';
-import { PrismaService } from '../prisma/prisma.service';
+import { DatabaseService } from '../database/database.service';
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/lib/kb';
-const MAX_PDF_SIZE = 100 * 1024 * 1024; // 100 MB
-const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500 MB
-const MAX_IMG_SIZE = 20 * 1024 * 1024; // 20 MB
+const MAX_PDF_SIZE = 100 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
+const MAX_IMG_SIZE = 20 * 1024 * 1024;
 const ALLOWED_PDF_EXTS = ['.pdf'];
 const ALLOWED_VIDEO_EXTS = ['.mp4', '.webm'];
 const ALLOWED_IMG_EXTS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
 
 @Controller('api/files')
 export class FilesController {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly db: DatabaseService) { }
 
   @Post('upload')
   @UseInterceptors(
@@ -37,62 +28,36 @@ export class FilesController {
         destination: (req, _file, cb) => {
           const type = req.body?.type || 'pdfs';
           const folder = type === 'VIDEO' ? 'videos' : type === 'IMAGE' ? 'images' : 'pdfs';
-          const dest = join(UPLOAD_DIR, folder);
-          cb(null, dest);
+          cb(null, join(UPLOAD_DIR, folder));
         },
         filename: (_req, file, cb) => {
-          const uniqueName = `${randomUUID()}${extname(file.originalname)}`;
-          cb(null, uniqueName);
+          cb(null, `${randomUUID()}${extname(file.originalname)}`);
         },
       }),
       limits: { fileSize: Math.max(MAX_VIDEO_SIZE, MAX_PDF_SIZE, MAX_IMG_SIZE) },
       fileFilter: (_req, file, cb) => {
         const ext = extname(file.originalname).toLowerCase();
         const allAllowed = [...ALLOWED_PDF_EXTS, ...ALLOWED_VIDEO_EXTS, ...ALLOWED_IMG_EXTS];
-        if (!allAllowed.includes(ext)) {
-          return cb(new BadRequestException(`File type ${ext} not allowed`), false);
-        }
+        if (!allAllowed.includes(ext)) return cb(new BadRequestException(`File type ${ext} not allowed`), false);
         cb(null, true);
       },
     }),
   )
-  uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Body('type') type: string,
-  ) {
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Body('type') type: string) {
     if (!file) throw new BadRequestException('No file provided');
-
-    // Validate size by type
     const ext = extname(file.originalname).toLowerCase();
-    if (ALLOWED_PDF_EXTS.includes(ext) && file.size > MAX_PDF_SIZE) {
-      throw new BadRequestException('PDF size exceeds 100 MB limit');
-    }
-    if (ALLOWED_IMG_EXTS.includes(ext) && file.size > MAX_IMG_SIZE) {
-      throw new BadRequestException('Image size exceeds 20 MB limit');
-    }
-
-    return {
-      file_path: file.path,
-      filename: file.filename,
-      originalname: file.originalname,
-      size: file.size,
-      mimetype: file.mimetype,
-    };
+    if (ALLOWED_PDF_EXTS.includes(ext) && file.size > MAX_PDF_SIZE) throw new BadRequestException('PDF size exceeds 100 MB limit');
+    if (ALLOWED_IMG_EXTS.includes(ext) && file.size > MAX_IMG_SIZE) throw new BadRequestException('Image size exceeds 20 MB limit');
+    return { file_path: file.path, filename: file.filename, originalname: file.originalname, size: file.size, mimetype: file.mimetype };
   }
 
   @Get(':moduleId')
   async serveFile(@Param('moduleId') moduleId: string, @Res() res: Response) {
-    const mod = await this.prisma.module.findFirst({
-      where: { id: moduleId, deleted_at: null },
-    });
-
-    if (!mod || !mod.file_path) {
-      throw new NotFoundException('File not found');
-    }
-
-    if (!existsSync(mod.file_path)) {
-      throw new NotFoundException('File not found on disk');
-    }
+    const mod = await this.db.queryOne(
+      `SELECT * FROM modules WHERE id = $1 AND deleted_at IS NULL`, [moduleId],
+    );
+    if (!mod || !mod.file_path) throw new NotFoundException('File not found');
+    if (!existsSync(mod.file_path)) throw new NotFoundException('File not found on disk');
 
     const ext = extname(mod.file_path).toLowerCase();
     let contentType = 'application/octet-stream';

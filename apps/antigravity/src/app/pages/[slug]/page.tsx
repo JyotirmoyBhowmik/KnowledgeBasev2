@@ -172,6 +172,53 @@ export default function PublicPageView() {
                                                     🔗 {mod.url}
                                                 </a>
                                             )}
+                                            {mod.type === "IMAGE" && (
+                                                <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200">
+                                                    <img src={filesApi.getFileUrl(mod.id)} alt={mod.title || "Image"} className="w-full max-h-[500px] object-contain bg-slate-100" />
+                                                </div>
+                                            )}
+                                            {mod.type === "CODE" && (
+                                                <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200">
+                                                    <div className="bg-slate-800 px-4 py-2 flex items-center justify-between">
+                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{(mod.metadata as any)?.language || "code"}</span>
+                                                        <button onClick={() => navigator.clipboard.writeText(mod.content || "")} className="text-xs text-slate-400 hover:text-white transition-colors">Copy</button>
+                                                    </div>
+                                                    <pre className="bg-slate-900 text-slate-300 p-4 overflow-x-auto text-sm"><code>{mod.content}</code></pre>
+                                                </div>
+                                            )}
+                                            {mod.type === "TABLE" && (mod.metadata as any)?.headers && (
+                                                <div className="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                                                    <table className="w-full text-sm">
+                                                        <thead className="bg-slate-100 text-slate-700 font-bold text-xs uppercase tracking-wider">
+                                                            <tr>
+                                                                {((mod.metadata as any).headers || []).map((h: string, i: number) => (
+                                                                    <th key={i} className="px-4 py-3 text-left border-b border-slate-200">{h}</th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-slate-100">
+                                                            {((mod.metadata as any).rows || []).map((row: string[], ri: number) => (
+                                                                <tr key={ri} className="hover:bg-slate-50">
+                                                                    {row.map((cell: string, ci: number) => (
+                                                                        <td key={ci} className="px-4 py-3 text-slate-700">{cell}</td>
+                                                                    ))}
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                            {mod.type === "EMBED" && (mod.metadata as any)?.embedUrl && (
+                                                <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200 bg-slate-100">
+                                                    <iframe
+                                                        src={(mod.metadata as any).embedUrl}
+                                                        className="w-full min-h-[400px] border-none"
+                                                        title={mod.title || "Embedded Content"}
+                                                        sandbox="allow-scripts allow-same-origin allow-popups"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

@@ -65,6 +65,17 @@ export const pagesApi = {
         fetchApi<any>(`/api/pages/${id}/publish`, { method: 'PATCH' }),
     archive: (id: string) =>
         fetchApi<any>(`/api/pages/${id}/archive`, { method: 'PATCH' }),
+    submitForReview: (id: string) =>
+        fetchApi<any>(`/api/pages/${id}/submit-review`, { method: 'PATCH' }),
+    approve: (id: string) =>
+        fetchApi<any>(`/api/pages/${id}/approve`, { method: 'PATCH' }),
+    reject: (id: string) =>
+        fetchApi<any>(`/api/pages/${id}/reject`, { method: 'PATCH' }),
+    getTrashed: () => fetchApi<any[]>('/api/pages/admin/trashed'),
+    restore: (id: string) =>
+        fetchApi<any>(`/api/pages/${id}/restore`, { method: 'PATCH' }),
+    permanentDelete: (id: string) =>
+        fetchApi<any>(`/api/pages/${id}/permanent`, { method: 'DELETE' }),
 };
 
 // ── Modules ──────────────────────────────────────────
@@ -103,7 +114,12 @@ export const usersApi = {
 
 // ── Files ────────────────────────────────────────────
 export const filesApi = {
-    getFileUrl: (moduleId: string) => `/api/files/${moduleId}`,
+    getFileUrl: (moduleId: string) => {
+        const cdnBase = typeof window !== 'undefined'
+            ? (window as any).__NEXT_PUBLIC_CDN_URL || ''
+            : process.env.NEXT_PUBLIC_CDN_URL || '';
+        return cdnBase ? `${cdnBase}/files/${moduleId}` : `/api/files/${moduleId}`;
+    },
     upload: async (file: File, type: string) => {
         const formData = new FormData();
         formData.append('type', type);
@@ -139,3 +155,34 @@ export const settingsApi = {
         fetchApi<any>(`/api/settings/${key}`, { method: 'PATCH', body: JSON.stringify({ value }) }),
 };
 
+// ── Versions ─────────────────────────────────────────────
+export const versionsApi = {
+    snapshot: (pageId: string) =>
+        fetchApi<any>(`/api/pages/${pageId}/snapshot`, { method: 'POST' }),
+    getAll: (pageId: string) => fetchApi<any[]>(`/api/pages/${pageId}/versions`),
+    restore: (pageId: string, versionId: string) =>
+        fetchApi<any>(`/api/pages/${pageId}/versions/${versionId}/restore`, { method: 'POST' }),
+};
+
+// ── Templates ────────────────────────────────────────────
+export const templatesApi = {
+    getAll: () => fetchApi<any[]>('/api/templates'),
+    getOne: (id: string) => fetchApi<any>(`/api/templates/${id}`),
+    create: (data: any) =>
+        fetchApi<any>('/api/templates', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any) =>
+        fetchApi<any>(`/api/templates/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: (id: string) =>
+        fetchApi<any>(`/api/templates/${id}`, { method: 'DELETE' }),
+};
+
+// ── Activity ─────────────────────────────────────────────
+export const activityApi = {
+    getAll: (params?: { userId?: string; entityType?: string; limit?: number }) => {
+        const qs = new URLSearchParams();
+        if (params?.userId) qs.set('userId', params.userId);
+        if (params?.entityType) qs.set('entityType', params.entityType);
+        if (params?.limit) qs.set('limit', String(params.limit));
+        return fetchApi<any[]>(`/api/activity?${qs.toString()}`);
+    },
+};

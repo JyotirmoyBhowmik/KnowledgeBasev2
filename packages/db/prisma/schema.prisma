@@ -19,11 +19,14 @@ model User {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  roles         UserRole[]
-  audit_logs    AuditLog[]
-  suggestions   Suggestion[]
-  created_pages Page[]       @relation("PageCreatedBy")
-  updated_pages Page[]       @relation("PageUpdatedBy")
+  roles          UserRole[]
+  audit_logs     AuditLog[]
+  suggestions    Suggestion[]
+  created_pages  Page[]        @relation("PageCreatedBy")
+  updated_pages  Page[]        @relation("PageUpdatedBy")
+  reviewed_pages Page[]        @relation("PageReviewedBy")
+  page_versions  PageVersion[]
+  activities     ActivityLog[]
 
   @@map("users")
 }
@@ -71,24 +74,29 @@ model Section {
 }
 
 model Page {
-  id            String    @id @default(uuid())
-  section_id    String
-  title         String
-  slug          String    @unique
-  status        String    @default("draft") // draft | published | archived
-  show_author   Boolean   @default(true)
-  show_metrics  Boolean   @default(true)
-  icon          String?
-  created_by_id String?
-  updated_by_id String?
-  deleted_at    DateTime? // soft-delete
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
+  id             String    @id @default(uuid())
+  section_id     String
+  title          String
+  slug           String    @unique
+  status         String    @default("draft") // draft | review | published | archived
+  show_author    Boolean   @default(true)
+  show_metrics   Boolean   @default(true)
+  icon           String?
+  template_id    String?
+  created_by_id  String?
+  updated_by_id  String?
+  reviewed_by_id String?
+  reviewed_at    DateTime?
+  deleted_at     DateTime? // soft-delete
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
 
-  section    Section  @relation(fields: [section_id], references: [id], onDelete: Cascade)
-  created_by User?    @relation("PageCreatedBy", fields: [created_by_id], references: [id], onDelete: SetNull)
-  updated_by User?    @relation("PageUpdatedBy", fields: [updated_by_id], references: [id], onDelete: SetNull)
-  modules    Module[]
+  section     Section       @relation(fields: [section_id], references: [id], onDelete: Cascade)
+  created_by  User?         @relation("PageCreatedBy", fields: [created_by_id], references: [id], onDelete: SetNull)
+  updated_by  User?         @relation("PageUpdatedBy", fields: [updated_by_id], references: [id], onDelete: SetNull)
+  reviewed_by User?         @relation("PageReviewedBy", fields: [reviewed_by_id], references: [id], onDelete: SetNull)
+  modules     Module[]
+  versions    PageVersion[]
 
   @@map("pages")
 }
@@ -96,11 +104,12 @@ model Page {
 model Module {
   id         String    @id @default(uuid())
   page_id    String
-  type       String // TEXT | PDF | VIDEO | URL
-  content    String? // rich HTML/Markdown for TEXT modules
-  file_path  String? // for PDF and VIDEO
+  type       String // TEXT | PDF | VIDEO | URL | IMAGE | TABLE | CODE | EMBED
+  content    String? // rich HTML/Markdown for TEXT modules, code for CODE
+  file_path  String? // for PDF, VIDEO, IMAGE
   url        String? // for URL modules
-  title      String? // display title for PDF/VIDEO/URL
+  title      String? // display title
+  metadata   Json? // e.g. { language: "python" }, { headers: [...], rows: [...] }, { embedUrl: "..." }
   order      Int       @default(0)
   deleted_at DateTime? // soft-delete
   created_at DateTime  @default(now())
@@ -111,7 +120,49 @@ model Module {
   @@map("modules")
 }
 
-// ─── Navigation (Merged into Sections) ───────────────────
+// ─── Versioning ──────────────────────────────────────────
+
+model PageVersion {
+  id         String   @id @default(uuid())
+  page_id    String
+  version    Int
+  snapshot   Json // full page + modules snapshot
+  changed_by String?
+  created_at DateTime @default(now())
+
+  page Page  @relation(fields: [page_id], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [changed_by], references: [id], onDelete: SetNull)
+
+  @@map("page_versions")
+}
+
+// ─── Templates ───────────────────────────────────────────
+
+model PageTemplate {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  modules     Json // array of module skeletons
+  created_at  DateTime @default(now())
+
+  @@map("page_templates")
+}
+
+// ─── Activity Tracking ───────────────────────────────────
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  user_id     String
+  action      String // viewed | created | edited | deleted
+  entity_type String
+  entity_id   String
+  details     String?
+  created_at  DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
 
 // ─── Audit & Suggestions ────────────────────────────────
 

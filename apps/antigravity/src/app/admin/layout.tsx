@@ -8,8 +8,12 @@ const sidebarItems = [
     { label: "Dashboard", href: "/admin", icon: "📊" },
     { label: "Sections", href: "/admin/sections", icon: "📂" },
     { label: "Pages", href: "/admin/pages", icon: "📄" },
+    { label: "Templates", href: "/admin/templates", icon: "📋" },
     { label: "Users", href: "/admin/users", icon: "👥" },
     { label: "Suggestions", href: "/admin/suggestions", icon: "💡" },
+    { label: "Activity Log", href: "/admin/activity", icon: "🕐" },
+    { label: "Trash", href: "/admin/trash", icon: "🗑️" },
+    { label: "Settings", href: "/admin/settings", icon: "⚙️" },
     { label: "Security & AD", href: "/admin/security", icon: "🛡️" },
 ];
 

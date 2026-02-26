@@ -46,4 +46,34 @@ export class PagesController {
   archive(@Param('id') id: string) {
     return this.pagesService.archive(id);
   }
+
+  @Patch(':id/submit-review')
+  submitForReview(@Param('id') id: string) {
+    return this.pagesService.submitForReview(id);
+  }
+
+  @Patch(':id/approve')
+  approve(@Param('id') id: string) {
+    return this.pagesService.approve(id);
+  }
+
+  @Patch(':id/reject')
+  reject(@Param('id') id: string) {
+    return this.pagesService.reject(id);
+  }
+
+  @Get('admin/trashed')
+  findTrashed() {
+    return this.pagesService.findTrashed();
+  }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.pagesService.restore(id);
+  }
+
+  @Delete(':id/permanent')
+  permanentDelete(@Param('id') id: string) {
+    return this.pagesService.permanentDelete(id);
+  }
 }

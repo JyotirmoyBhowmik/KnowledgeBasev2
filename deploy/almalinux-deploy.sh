@@ -46,7 +46,7 @@ sudo rsync -av --exclude 'node_modules' --exclude '.next' --exclude 'dist' ./ ${
 cd ${APP_DIR}
 
 npm install --legacy-peer-deps
-cd packages/db && npx prisma db push && cd ../..
+PGPASSWORD="$DB_PASS" psql -h localhost -U "$DB_USER" -d "$DB_NAME" -f packages/db/schema.sql
 cd apps/backend && npx nest build && cd ../..
 cd apps/antigravity && npm run build && cd ../..
 
