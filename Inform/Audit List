@@ -1,0 +1,93 @@
+# Knowledge Base — Audit & Enhancement List
+
+> Based on full code review of all backend services, controllers, frontend pages, API client, auth, and security middleware.
+
+---
+
+## 🔴 Security Issues (Critical)
+
+| # | Issue | Where |
+|---|-------|-------|
+| 1 | **No auth guards on any admin endpoint** — Pages, Modules, Sections, Users, Settings, Templates, Activity, Versions controllers are ALL unprotected. Anyone can create/delete pages without logging in. | All controllers except Suggestions |
+| 2 | **No role-based access control** — Even if auth guard is added, there's no `@Roles('admin')` decorator. A viewer could delete pages or manage users. | All controllers |
+| 3 | **JWT secret is hardcoded** — `'enterprise-kb-secret-change-in-production'` is in source code. If `.env` is missing, anyone can forge tokens. | `auth.module.ts:9` |
+| 4 | **Password not returned but password_hash IS** — All user queries (`SELECT u.*`) return `password_hash` to the client. This is a data leak. | `users.service.ts`, `auth.service.ts` |
+| 5 | **No rate limiting** — Login endpoint has no brute-force protection. An attacker can try unlimited passwords. | `auth.controller.ts` |
+| 6 | **File upload has no auth** — Anyone can upload files without being logged in. | `files.controller.ts` |
+| 7 | **SQL injection risk in dynamic UPDATE** — The `update()` methods in Pages, Sections, Modules, and Suggestions build SQL field names from user-supplied DTO keys. If a DTO allows arbitrary keys, column names could be injected. | Multiple services |
+| 8 | **No CORS configuration** — Backend has no CORS setup. In production behind Nginx this may be fine, but direct access has no protection. | `main.ts` |
+| 9 | **CSP allows `unsafe-inline` and `unsafe-eval`** — Weakens XSS protection significantly. | `security-headers.middleware.ts:30` |
+| 10 | **No file type validation on server-side** — Only checks extension, not actual MIME via magic bytes. A `.jpg` could contain malicious content. | `files.controller.ts` |
+
+---
+
+## 🟡 Permission & Auth Gaps
+
+| # | Issue | Where |
+|---|-------|-------|
+| 11 | **`getProfile` endpoint is missing** — Auth controller has no `GET /api/auth/profile` route — frontend can't verify tokens. | `auth.controller.ts` |
+| 12 | **Section tree doesn't use actual user roles** — `getTree()` is called with `[]` (empty roles), so role-based section visibility never works. | `sections.controller.ts:18` |
+| 13 | **Public pages endpoint shows ALL pages** — No filter for `status = 'published'` on `findAll`. Draft/archived pages visible to everyone. | `pages.service.ts:findAll` |
+| 14 | **Suggestions GET is unprotected** — All suggestions (potentially private feedback) are exposed without auth. | `suggestions.controller.ts:18` |
+| 15 | **Permanent delete has no admin check** — Anyone can permanently delete pages by calling `DELETE /api/pages/:id/permanent`. | `pages.controller.ts:76` |
+| 16 | **User creation has no duplicate check** — Creating a user with an existing email will throw a raw Postgres error instead of a friendly message. | `users.service.ts:create` |
+
+---
+
+## 🟠 File & Storage Issues
+
+| # | Issue | Where |
+|---|-------|-------|
+| 17 | **Uploaded files not cleaned up on module delete** — When a module is soft-deleted, its file (PDF/video/image) stays on disk forever. | `modules.service.ts:remove` |
+| 18 | **Permanent page delete doesn't remove files** — When a page is permanently deleted, module files are orphaned on disk. | `pages.service.ts:permanentDelete` |
+| 19 | **No file size limit enforcement per type** — The `fileFilter` accepts all types but the size check happens AFTER multer writes to disk. If a 500MB video is rejected, it's already on disk. | `files.controller.ts` |
+| 20 | **Upload directory paths stored as absolute paths** — `file_path` contains `/var/lib/kb/pdfs/abc.pdf`. If the server moves, all paths break. Should store relative paths. | `files.controller.ts:uploadFile` |
+| 21 | **No image optimization** — Uploaded images served as-is. No thumbnails, no WebP conversion, no resizing. | Backend |
+
+---
+
+## 🔵 Missing Features (Content & Modules)
+
+| # | Feature | Description |
+|---|---------|-------------|
+| 22 | **Search** — No full-text search across pages/modules. The search bar in the frontend does nothing. | Backend + Frontend |
+| 23 | **Page slug auto-generation** — Admin must manually enter slug when creating pages. Should auto-generate from title. | Frontend: admin page create |
+| 24 | **Page duplication** — No "Duplicate Page" feature. Admins can't clone existing pages. | Backend + Frontend |
+| 25 | **Module bulk operations** — Can't select multiple modules to delete or move at once. | Frontend |
+| 26 | **Rich text editor image upload** — Editor only supports image via URL. No file upload integration within the editor toolbar. | `RichTextEditor.tsx` |
+| 27 | **Table editor UX** — TABLE module requires raw JSON for headers/rows. Needs a visual table builder. | Admin page editor |
+| 28 | **Code module syntax highlighting** — CODE module stored as text but public page doesn't syntax-highlight it (no Prism/Highlight.js). | Public page view |
+| 29 | **EMBED module preview** — No preview in admin editor; only renders on public page. | Admin page editor |
+| 30 | **View count tracking** — Page has `show_metrics` but no actual view counting mechanism. Views, likes, dislikes are fake random numbers. | Public page view |
+| 31 | **Comments / Feedback on pages** — No way for users to leave comments on published pages. | Not implemented |
+| 32 | **Page export** — No PDF/Word export of published pages. | Not implemented |
+| 33 | **Breadcrumb navigation** — Section → Page breadcrumbs exist but no sub-section nesting support in the frontend. | Public layout |
+| 34 | **Markdown module type** — No native Markdown rendering module (different from Rich Text which is HTML). | Module types |
+| 35 | **Print-friendly view** — No print stylesheet for published pages. | Frontend CSS |
+| 36 | **Template → New Page flow** — Templates exist but there's no "Create from Template" button on the admin pages list. | Frontend |
+
+---
+
+## 🟣 Backend Code Quality
+
+| # | Issue | Where |
+|---|-------|-------|
+| 37 | **No input validation** — DTOs exist but have no class-validator decorators. Any JSON body is accepted. | All DTOs |
+| 38 | **No pagination** — `findAll` on pages, users, suggestions returns ALL rows. Will break with large datasets. | All service `findAll` methods |
+| 39 | **No error handling for unique constraints** — Creating a page/section with duplicate slug throws raw Postgres error. | `pages.service.ts`, `sections.service.ts` |
+| 40 | **Audit log interceptor logs ALL mutations** — Including login attempts, which can contain sensitive data in the `after` JSON. | `audit-log.interceptor.ts` |
+| 41 | **No health check endpoint** — No `GET /api/health` for monitoring/load balancer checks. | Backend |
+| 42 | **No graceful shutdown** — DatabaseService closes pool, but no other cleanup (pending uploads, etc). | Backend |
+
+---
+
+## Summary by Priority
+
+| Priority | Count | Action |
+|----------|-------|--------|
+| 🔴 Critical (Security) | 10 | Fix before public deployment |
+| 🟡 Auth Gaps | 6 | Fix immediately |
+| 🟠 File/Storage | 5 | Fix soon |
+| 🔵 Missing Features | 15 | Plan for next sprint |
+| 🟣 Code Quality | 6 | Improve incrementally |
+| **Total** | **42** | |

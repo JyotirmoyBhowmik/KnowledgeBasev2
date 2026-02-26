@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
@@ -8,12 +8,17 @@ export class SectionsService {
   constructor(private readonly db: DatabaseService) { }
 
   async create(dto: CreateSectionDto) {
-    return this.db.queryOne(
-      `INSERT INTO sections (name, slug, route, roles_allowed, "order", icon, visible, parent_id)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [dto.name, dto.slug, (dto as any).route || null, (dto as any).roles_allowed ? JSON.stringify((dto as any).roles_allowed) : null,
-      (dto as any).order || 0, (dto as any).icon || null, (dto as any).visible !== false, (dto as any).parent_id || null],
-    );
+    try {
+      return await this.db.queryOne(
+        `INSERT INTO sections (name, slug, route, roles_allowed, "order", icon, visible, parent_id)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+        [dto.name, dto.slug, (dto as any).route || null, (dto as any).roles_allowed ? JSON.stringify((dto as any).roles_allowed) : null,
+        (dto as any).order || 0, (dto as any).icon || null, (dto as any).visible !== false, (dto as any).parent_id || null],
+      );
+    } catch (err: any) {
+      if (err.code === '23505') throw new ConflictException(`Section with slug "${dto.slug}" or name "${dto.name}" already exists`);
+      throw err;
+    }
   }
 
   async findAll() {
@@ -88,8 +93,9 @@ export class SectionsService {
     const values: any[] = [];
     let idx = 1;
 
+    const ALLOWED_COLS = new Set(['name', 'slug', 'route', 'roles_allowed', 'order', 'icon', 'visible', 'parent_id']);
     for (const [key, value] of Object.entries(dto)) {
-      if (value !== undefined) {
+      if (value !== undefined && ALLOWED_COLS.has(key)) {
         const col = key === 'order' ? `"order"` : key;
         fields.push(`${col} = $${idx}`);
         values.push(key === 'roles_allowed' ? JSON.stringify(value) : value);
@@ -99,10 +105,15 @@ export class SectionsService {
     fields.push(`updated_at = NOW()`);
     values.push(id);
 
-    return this.db.queryOne(
-      `UPDATE sections SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
-      values,
-    );
+    try {
+      return await this.db.queryOne(
+        `UPDATE sections SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values,
+      );
+    } catch (err: any) {
+      if (err.code === '23505') throw new ConflictException(`Unique constraint violation (duplicate slug/name)`);
+      throw err;
+    }
   }
 
   async remove(id: string) {

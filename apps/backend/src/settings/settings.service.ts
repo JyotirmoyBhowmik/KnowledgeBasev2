@@ -6,7 +6,7 @@ export class SettingsService {
     constructor(private db: DatabaseService) { }
 
     async findAll() {
-        return this.db.query(`SELECT * FROM settings`);
+        return this.db.query(`SELECT * FROM settings ORDER BY key ASC`);
     }
 
     async findOne(key: string) {
@@ -14,9 +14,8 @@ export class SettingsService {
     }
 
     async update(key: string, value: string) {
-        // Upsert: insert or update
         return this.db.queryOne(
-            `INSERT INTO settings (key, value) VALUES ($1, $2)
+            `INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW())
              ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()
              RETURNING *`,
             [key, value],

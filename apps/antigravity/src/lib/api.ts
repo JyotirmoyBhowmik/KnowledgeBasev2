@@ -33,6 +33,7 @@ export const authApi = {
             method: 'POST',
             body: JSON.stringify({ email, password, name }),
         }),
+    getProfile: () => fetchApi<any>('/api/auth/profile'),
 };
 
 // ── Sections ─────────────────────────────────────────
@@ -76,6 +77,8 @@ export const pagesApi = {
         fetchApi<any>(`/api/pages/${id}/restore`, { method: 'PATCH' }),
     permanentDelete: (id: string) =>
         fetchApi<any>(`/api/pages/${id}/permanent`, { method: 'DELETE' }),
+    duplicate: (id: string) =>
+        fetchApi<any>(`/api/pages/${id}/duplicate`, { method: 'POST' }),
 };
 
 // ── Modules ──────────────────────────────────────────
@@ -185,4 +188,12 @@ export const activityApi = {
         if (params?.limit) qs.set('limit', String(params.limit));
         return fetchApi<any[]>(`/api/activity?${qs.toString()}`);
     },
+};
+
+// ── Public API (no auth needed) ──────────────────────────
+export const publicApi = {
+    getPublishedPages: () => fetchApi<any[]>('/api/public/pages'),
+    getRecentPages: () => fetchApi<any[]>('/api/public/pages/recent'),
+    search: (q: string) => fetchApi<any[]>(`/api/public/search?q=${encodeURIComponent(q)}`),
+    health: () => fetchApi<any>('/api/health'),
 };

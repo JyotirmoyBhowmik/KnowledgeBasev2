@@ -7,7 +7,7 @@ export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [userForm, setUserForm] = useState({ name: "", email: "", role: "" });
+    const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "viewer" });
     const [creating, setCreating] = useState(false);
 
     const loadUsers = async () => {
@@ -38,7 +38,7 @@ export default function AdminUsersPage() {
         try {
             await usersApi.create(userForm);
             setShowForm(false);
-            setUserForm({ name: "", email: "", role: "" });
+            setUserForm({ name: "", email: "", password: "", role: "viewer" });
             loadUsers();
         } catch (err: any) {
             alert(err.message);
@@ -65,38 +65,30 @@ export default function AdminUsersPage() {
             {showForm && (
                 <form onSubmit={handleCreateUser} className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
                     <h3 className="text-lg font-semibold text-slate-800 mb-4">Add New User</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
-                            <input
-                                required
-                                value={userForm.name}
-                                onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder="Full Name"
-                            />
+                            <input required value={userForm.name} onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Full Name" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                            <input
-                                required
-                                type="email"
-                                value={userForm.email}
-                                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder="Email address"
-                            />
+                            <input required type="email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Email address" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Initial Role</label>
-                            <select
-                                value={userForm.role}
-                                onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
-                            >
-                                <option value="">User (Default)</option>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                            <input required type="password" value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Set login password" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+                            <select value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                                <option value="viewer">Viewer</option>
+                                <option value="contributor">Contributor</option>
                                 <option value="admin">Admin</option>
-                                <option value="editor">Editor</option>
+                                <option value="super_admin">Super Admin</option>
                             </select>
                         </div>
                     </div>
@@ -156,8 +148,10 @@ export default function AdminUsersPage() {
                                             defaultValue=""
                                         >
                                             <option value="" disabled>Assign Role...</option>
-                                            <option value="admin">Assign Admin</option>
-                                            <option value="editor">Assign Editor</option>
+                                            <option value="viewer">Viewer</option>
+                                            <option value="contributor">Contributor</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="super_admin">Super Admin</option>
                                         </select>
                                     </td>
                                 </tr>

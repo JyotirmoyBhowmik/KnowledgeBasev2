@@ -3,6 +3,8 @@ import { SuggestionsService } from './suggestions.service';
 import { CreateSuggestionDto } from './dto/create-suggestion.dto';
 import { UpdateSuggestionDto } from './dto/update-suggestion.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('api/suggestions')
 export class SuggestionsController {
@@ -10,27 +12,29 @@ export class SuggestionsController {
 
     @Post()
     @UseGuards(JwtAuthGuard)
-    create(@Body() createSuggestionDto: CreateSuggestionDto, @Request() req: any) {
-        return this.suggestionsService.create(createSuggestionDto, req.user.id);
+    create(@Body() dto: CreateSuggestionDto, @Request() req: any) {
+        return this.suggestionsService.create(dto, req.user.sub);
     }
 
     @Get()
-    findAll() {
-        return this.suggestionsService.findAll();
-    }
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin', 'super_admin')
+    findAll() { return this.suggestionsService.findAll(); }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.suggestionsService.findOne(id);
-    }
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin', 'super_admin')
+    findOne(@Param('id') id: string) { return this.suggestionsService.findOne(id); }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateSuggestionDto: UpdateSuggestionDto) {
-        return this.suggestionsService.update(id, updateSuggestionDto);
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin', 'super_admin')
+    update(@Param('id') id: string, @Body() dto: UpdateSuggestionDto) {
+        return this.suggestionsService.update(id, dto);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.suggestionsService.remove(id);
-    }
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin', 'super_admin')
+    remove(@Param('id') id: string) { return this.suggestionsService.remove(id); }
 }

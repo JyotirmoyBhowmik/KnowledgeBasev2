@@ -2,6 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
+import { existsSync, unlinkSync } from 'fs';
+
+// Whitelisted columns for dynamic UPDATE
+const ALLOWED_UPDATE_COLS = new Set(['type', 'content', 'file_path', 'url', 'title', 'metadata', 'order']);
 
 @Injectable()
 export class ModulesService {
@@ -41,7 +45,8 @@ export class ModulesService {
     let idx = 1;
 
     for (const [key, value] of Object.entries(dto)) {
-      if (value !== undefined && key !== 'page_id') {
+      // Only allow whitelisted columns — prevents SQL injection via key names
+      if (value !== undefined && key !== 'page_id' && ALLOWED_UPDATE_COLS.has(key)) {
         const col = key === 'order' ? `"order"` : key;
         fields.push(`${col} = $${idx}`);
         values.push(key === 'metadata' ? JSON.stringify(value) : value);
@@ -60,7 +65,11 @@ export class ModulesService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    const mod = await this.findOne(id);
+    // Cleanup file from disk
+    if (mod.file_path) {
+      try { if (existsSync(mod.file_path)) unlinkSync(mod.file_path); } catch { }
+    }
     return this.db.queryOne(
       `UPDATE modules SET deleted_at = NOW() WHERE id = $1 RETURNING *`,
       [id],
@@ -70,7 +79,7 @@ export class ModulesService {
   async reorder(pageId: string, orderedIds: string[]) {
     await this.db.transaction(async (client) => {
       for (let i = 0; i < orderedIds.length; i++) {
-        await client.query(`UPDATE modules SET "order" = $1 WHERE id = $2`, [i, orderedIds[i]]);
+        await client.query(`UPDATE modules SET "order" = $1 WHERE id = $2 AND page_id = $3`, [i, orderedIds[i], pageId]);
       }
     });
     return { reordered: true };

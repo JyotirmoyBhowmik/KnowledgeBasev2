@@ -1,7 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { TemplatesService } from './templates.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('api/templates')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'super_admin')
 export class TemplatesController {
     constructor(private readonly templatesService: TemplatesService) { }
 

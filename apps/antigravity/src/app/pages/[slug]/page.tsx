@@ -58,11 +58,11 @@ export default function PublicPageView() {
     if (loading) return <div className="min-h-screen bg-slate-50 text-slate-500 flex items-center justify-center">Loading...</div>;
     if (!page) return <div className="min-h-screen bg-slate-50 text-slate-500 flex items-center justify-center">Page not found</div>;
 
-    // Hardcoded numbers from user prompt
-    const likes = 62;
-    const dislikes = 2;
-    const views = 259;
-    const readers = 207;
+    // Real metrics from page data
+    const views = page?.views || 0;
+    const likes = page?.likes || 0;
+    const dislikes = page?.dislikes || 0;
+    const readers = page?.readers || 0;
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
@@ -181,9 +181,9 @@ export default function PublicPageView() {
                                                 <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200">
                                                     <div className="bg-slate-800 px-4 py-2 flex items-center justify-between">
                                                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{(mod.metadata as any)?.language || "code"}</span>
-                                                        <button onClick={() => navigator.clipboard.writeText(mod.content || "")} className="text-xs text-slate-400 hover:text-white transition-colors">Copy</button>
+                                                        <button onClick={() => navigator.clipboard.writeText(mod.content || "").then(() => { const btn = document.activeElement as HTMLButtonElement; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500); })} className="text-xs text-slate-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-slate-700">Copy</button>
                                                     </div>
-                                                    <pre className="bg-slate-900 text-slate-300 p-4 overflow-x-auto text-sm"><code>{mod.content}</code></pre>
+                                                    <pre className="bg-slate-900 text-green-400 p-4 overflow-x-auto text-sm font-mono leading-relaxed" style={{ tabSize: 4 }}><code>{mod.content}</code></pre>
                                                 </div>
                                             )}
                                             {mod.type === "TABLE" && (mod.metadata as any)?.headers && (

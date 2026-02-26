@@ -2,47 +2,55 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { pagesApi, sectionsApi } from "@/lib/api";
+import { publicApi, sectionsApi } from "@/lib/api";
 
 export default function HomePage() {
   const [recentPages, setRecentPages] = useState<any[]>([]);
   const [sidebarItems, setSidebarItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const [searching, setSearching] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    Promise.all([pagesApi.getAll(), sectionsApi.getTree()])
+    Promise.all([publicApi.getRecentPages(), sectionsApi.getTree()])
       .then(([pagesData, sectionsTreeData]) => {
-        const published = pagesData.filter((p: any) => p.status === 'published');
-        published.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        setRecentPages(published.slice(0, 10));
+        setRecentPages(pagesData);
 
-        // Map the backend sections tree to our sidebar UI format
         const mapSection = (m: any): any => ({
           label: m.name || m.label,
           href: m.route || (m.slug ? `/sections/${m.slug}` : "#"),
-          icon: m.icon || (m.label?.includes("Home") ? "🏠" :
-            m.label?.includes("Train") ? "📚" :
-              m.label?.includes("Admin") ? "⚙️" : "🧠"),
+          icon: m.icon || "🧠",
           desc: m.children?.length ? `${m.children.length} items` : "",
           children: m.children?.map(mapSection) || []
         });
 
         const mappedMenus = sectionsTreeData.map(mapSection);
-
-        // Ensure there is at least a Home / Admin link if DB is fully empty
         if (mappedMenus.length === 0) {
           mappedMenus.push({ label: "Admin Portal", href: "/admin", icon: "⚙️", desc: "Configuration" });
         }
-
         setSidebarItems(mappedMenus);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredPages = recentPages.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Live search with debounce
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) { setSearchResults(null); return; }
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const results = await publicApi.search(searchQuery);
+        setSearchResults(results);
+      } catch { setSearchResults([]); }
+      finally { setSearching(false); }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const displayPages = searchResults !== null ? searchResults : recentPages;
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900 overflow-hidden relative">
@@ -181,14 +189,14 @@ export default function HomePage() {
               <span className="animate-spin text-4xl mb-4">⏳</span>
               <span className="text-sm font-semibold">Loading your knowledge base...</span>
             </div>
-          ) : filteredPages.length === 0 ? (
+          ) : displayPages.length === 0 ? (
             <div className="text-center py-24 bg-white rounded-2xl border border-slate-200 shadow-sm">
               <div className="text-6xl mb-4 opacity-30">📭</div>
               <p className="text-lg font-bold text-slate-700">No published pages found.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-              {filteredPages.map((page) => (
+              {displayPages.map((page) => (
                 <Link
                   key={page.id}
                   href={`/pages/${page.slug}`}
