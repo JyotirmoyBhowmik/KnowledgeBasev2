@@ -45,7 +45,7 @@ sudo mkdir -p ${APP_DIR}
 sudo rsync -av --exclude 'node_modules' --exclude '.next' --exclude 'dist' ./ ${APP_DIR}/
 cd ${APP_DIR}
 
-npm ci
+npm install --legacy-peer-deps
 cd packages/db && npx prisma db push && cd ../..
 cd apps/backend && npx nest build && cd ../..
 cd apps/antigravity && npm run build && cd ../..
