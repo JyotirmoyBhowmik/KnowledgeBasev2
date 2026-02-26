@@ -1,12 +1,7 @@
-const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
-export const API_BASE = NEXT_PUBLIC_API_URL;
+export const API_BASE = typeof window === 'undefined' ? 'http://localhost:4000' : '';
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
-    const isServer = typeof window === 'undefined';
-    // Node.js fetch needs absolute URLs. If relative routing is enabled (empty string), route to local backend on SSR.
-    const _apiBase = (isServer && NEXT_PUBLIC_API_URL === '') ? 'http://localhost:4000' : NEXT_PUBLIC_API_URL;
-
-    const url = `${_apiBase}${path}`;
+    const url = `${API_BASE}${path}`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
     const res = await fetch(url, {
@@ -103,7 +98,7 @@ export const usersApi = {
 
 // ── Files ────────────────────────────────────────────
 export const filesApi = {
-    getFileUrl: (moduleId: string) => `${API_BASE}/api/files/${moduleId}`,
+    getFileUrl: (moduleId: string) => `/api/files/${moduleId}`,
     upload: async (file: File, type: string) => {
         const formData = new FormData();
         formData.append('file', file);
