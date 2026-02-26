@@ -13,7 +13,7 @@ async function bootstrap() {
 
   // Global validation pipe for DTO validation
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
+    whitelist: false,
     forbidNonWhitelisted: false,
     transform: true,
   }));
