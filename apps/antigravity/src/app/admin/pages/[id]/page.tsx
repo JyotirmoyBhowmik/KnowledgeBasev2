@@ -11,10 +11,11 @@ export default function AdminPageEditor() {
     const [modules, setModules] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModuleForm, setShowModuleForm] = useState(false);
+    const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
     const [moduleForm, setModuleForm] = useState({ type: "TEXT" as string, content: "", title: "", url: "" });
     const [moduleFile, setModuleFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
-    const [pageSettings, setPageSettings] = useState({ status: "draft", show_author: true, show_metrics: true });
+    const [pageSettings, setPageSettings] = useState({ status: "draft", show_author: true, show_metrics: true, icon: "" });
     const [savingSettings, setSavingSettings] = useState(false);
 
     const load = async () => {
@@ -25,7 +26,8 @@ export default function AdminPageEditor() {
             setPageSettings({
                 status: p.status || "draft",
                 show_author: p.show_author !== false, // default true
-                show_metrics: p.show_metrics !== false // default true
+                show_metrics: p.show_metrics !== false, // default true
+                icon: p.icon || ""
             });
         } catch (e) {
             console.error(e);
@@ -53,22 +55,29 @@ export default function AdminPageEditor() {
         try {
             let uploadedFilePath = undefined;
 
-            if ((moduleForm.type === "PDF" || moduleForm.type === "VIDEO") && moduleFile) {
+            if ((moduleForm.type === "PDF" || moduleForm.type === "VIDEO" || moduleForm.type === "IMAGE") && moduleFile) {
                 setUploading(true);
                 const fileRes = await filesApi.upload(moduleFile, moduleForm.type);
                 uploadedFilePath = fileRes.file_path;
             }
 
-            await modulesApi.create({
+            const payload = {
                 page_id: pageId,
                 type: moduleForm.type,
                 content: moduleForm.type === "TEXT" ? moduleForm.content : undefined,
                 title: moduleForm.title || undefined,
                 url: moduleForm.type === "URL" ? moduleForm.url : undefined,
                 file_path: uploadedFilePath,
-                order: modules.length,
-            });
+            };
+
+            if (editingModuleId) {
+                await modulesApi.update(editingModuleId, payload);
+            } else {
+                await modulesApi.create({ ...payload, order: modules.length });
+            }
+
             setShowModuleForm(false);
+            setEditingModuleId(null);
             setModuleForm({ type: "TEXT", content: "", title: "", url: "" });
             setModuleFile(null);
             setUploading(false);
@@ -76,6 +85,18 @@ export default function AdminPageEditor() {
         } catch (err: any) {
             alert(err.message);
         }
+    };
+
+    const handleEditModule = (mod: any) => {
+        setEditingModuleId(mod.id);
+        setModuleForm({
+            type: mod.type,
+            content: mod.content || "",
+            title: mod.title || "",
+            url: mod.url || ""
+        });
+        setModuleFile(null);
+        setShowModuleForm(true);
     };
 
     const handleDeleteModule = async (id: string) => {
@@ -86,7 +107,7 @@ export default function AdminPageEditor() {
     if (loading) return <div className="text-slate-500 text-center py-12">Loading...</div>;
     if (!page) return <div className="text-red-400 text-center py-12">Page not found</div>;
 
-    const typeIcons: Record<string, string> = { TEXT: "📝", PDF: "📄", VIDEO: "🎬", URL: "🔗" };
+    const typeIcons: Record<string, string> = { TEXT: "📝", PDF: "📄", VIDEO: "🎬", URL: "🔗", IMAGE: "🖼️" };
 
     return (
         <div>
@@ -97,7 +118,12 @@ export default function AdminPageEditor() {
                 </div>
                 <div className="flex gap-3">
                     <button
-                        onClick={() => setShowModuleForm(!showModuleForm)}
+                        onClick={() => {
+                            setEditingModuleId(null);
+                            setModuleForm({ type: "TEXT", content: "", title: "", url: "" });
+                            setModuleFile(null);
+                            setShowModuleForm(!showModuleForm);
+                        }}
                         className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white transition-colors"
                     >
                         + Add Module
@@ -118,6 +144,17 @@ export default function AdminPageEditor() {
                         <option value="published">Published</option>
                         <option value="archived">Archived</option>
                     </select>
+                </div>
+
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <label className="text-sm font-medium text-slate-300">Icon:</label>
+                    <input
+                        type="text"
+                        value={pageSettings.icon}
+                        onChange={(e) => setPageSettings({ ...pageSettings, icon: e.target.value })}
+                        className="px-3 py-1.5 w-20 bg-slate-800 border border-slate-700 rounded-md text-sm text-white focus:ring-2 focus:ring-indigo-500"
+                        placeholder="e.g. 📄"
+                    />
                 </div>
 
                 <label className="flex items-center gap-2 text-sm text-slate-300">
@@ -164,6 +201,7 @@ export default function AdminPageEditor() {
                                 <option value="TEXT">Text (Rich HTML/Markdown)</option>
                                 <option value="PDF">PDF Document</option>
                                 <option value="VIDEO">Video</option>
+                                <option value="IMAGE">Image</option>
                                 <option value="URL">External URL</option>
                             </select>
                         </div>
@@ -202,12 +240,12 @@ export default function AdminPageEditor() {
                         </div>
                     )}
 
-                    {(moduleForm.type === "PDF" || moduleForm.type === "VIDEO") && (
+                    {(moduleForm.type === "PDF" || moduleForm.type === "VIDEO" || moduleForm.type === "IMAGE") && (
                         <div>
                             <label className="block text-sm font-medium text-slate-300 mb-1">Upload File ({moduleForm.type})</label>
                             <input
                                 type="file"
-                                accept={moduleForm.type === "PDF" ? ".pdf" : ".mp4,.webm"}
+                                accept={moduleForm.type === "PDF" ? ".pdf" : moduleForm.type === "VIDEO" ? ".mp4,.webm" : ".png,.jpg,.jpeg,.gif,.webp"}
                                 onChange={(e) => setModuleFile(e.target.files?.[0] || null)}
                                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
                             />
@@ -221,9 +259,12 @@ export default function AdminPageEditor() {
 
                     <div className="flex gap-3 pt-2">
                         <button type="submit" disabled={uploading} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white shadow-sm disabled:opacity-50 min-w-[120px]">
-                            {uploading ? "Uploading..." : "Add Module"}
+                            {uploading ? "Uploading..." : editingModuleId ? "Save Module" : "Add Module"}
                         </button>
-                        <button type="button" onClick={() => setShowModuleForm(false)} className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-300 transition-colors">Cancel</button>
+                        <button type="button" onClick={() => {
+                            setShowModuleForm(false);
+                            setEditingModuleId(null);
+                        }} className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium text-slate-300 transition-colors">Cancel</button>
                     </div>
                 </form>
             )}
@@ -243,7 +284,10 @@ export default function AdminPageEditor() {
                                     <span className="text-sm font-medium text-white">{mod.title || `${mod.type} Module #${index + 1}`}</span>
                                     <span className="px-2 py-0.5 bg-slate-800 text-slate-400 text-xs rounded-full">{mod.type}</span>
                                 </div>
-                                <button onClick={() => handleDeleteModule(mod.id)} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-xs text-red-400">Remove</button>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => handleEditModule(mod)} className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg text-xs text-blue-400">Edit</button>
+                                    <button onClick={() => handleDeleteModule(mod.id)} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-xs text-red-400">Remove</button>
+                                </div>
                             </div>
                             {mod.type === "TEXT" && mod.content && (
                                 <div className="text-sm text-slate-400 line-clamp-3 bg-slate-800/50 p-3 rounded-lg" dangerouslySetInnerHTML={{ __html: mod.content.substring(0, 300) }} />
@@ -251,8 +295,14 @@ export default function AdminPageEditor() {
                             {mod.type === "URL" && mod.url && (
                                 <a href={mod.url} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-400 hover:underline">{mod.url}</a>
                             )}
-                            {(mod.type === "PDF" || mod.type === "VIDEO") && mod.file_path && (
-                                <div className="text-sm text-slate-500">File: {mod.file_path}</div>
+                            {(mod.type === "PDF" || mod.type === "VIDEO" || mod.type === "IMAGE") && mod.file_path && (
+                                <div className="text-sm text-slate-500 bg-slate-800/50 p-3 rounded-lg flex items-center gap-2 mt-2">
+                                    {mod.type === "IMAGE" ? (
+                                        <img src={`/api/files/${mod.id}`} alt={mod.title} className="max-h-32 rounded border border-slate-700 object-contain bg-black/40" />
+                                    ) : (
+                                        <span>📎 {mod.file_path}</span>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))}

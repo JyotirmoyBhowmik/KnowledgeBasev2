@@ -21,8 +21,10 @@ import { PrismaService } from '../prisma/prisma.service';
 const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/lib/kb';
 const MAX_PDF_SIZE = 100 * 1024 * 1024; // 100 MB
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500 MB
+const MAX_IMG_SIZE = 20 * 1024 * 1024; // 20 MB
 const ALLOWED_PDF_EXTS = ['.pdf'];
 const ALLOWED_VIDEO_EXTS = ['.mp4', '.webm'];
+const ALLOWED_IMG_EXTS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
 
 @Controller('api/files')
 export class FilesController {
@@ -34,7 +36,8 @@ export class FilesController {
       storage: diskStorage({
         destination: (req, _file, cb) => {
           const type = req.body?.type || 'pdfs';
-          const dest = join(UPLOAD_DIR, type === 'VIDEO' ? 'videos' : 'pdfs');
+          const folder = type === 'VIDEO' ? 'videos' : type === 'IMAGE' ? 'images' : 'pdfs';
+          const dest = join(UPLOAD_DIR, folder);
           cb(null, dest);
         },
         filename: (_req, file, cb) => {
@@ -42,10 +45,10 @@ export class FilesController {
           cb(null, uniqueName);
         },
       }),
-      limits: { fileSize: MAX_VIDEO_SIZE },
+      limits: { fileSize: Math.max(MAX_VIDEO_SIZE, MAX_PDF_SIZE, MAX_IMG_SIZE) },
       fileFilter: (_req, file, cb) => {
         const ext = extname(file.originalname).toLowerCase();
-        const allAllowed = [...ALLOWED_PDF_EXTS, ...ALLOWED_VIDEO_EXTS];
+        const allAllowed = [...ALLOWED_PDF_EXTS, ...ALLOWED_VIDEO_EXTS, ...ALLOWED_IMG_EXTS];
         if (!allAllowed.includes(ext)) {
           return cb(new BadRequestException(`File type ${ext} not allowed`), false);
         }
@@ -63,6 +66,9 @@ export class FilesController {
     const ext = extname(file.originalname).toLowerCase();
     if (ALLOWED_PDF_EXTS.includes(ext) && file.size > MAX_PDF_SIZE) {
       throw new BadRequestException('PDF size exceeds 100 MB limit');
+    }
+    if (ALLOWED_IMG_EXTS.includes(ext) && file.size > MAX_IMG_SIZE) {
+      throw new BadRequestException('Image size exceeds 20 MB limit');
     }
 
     return {
@@ -89,11 +95,13 @@ export class FilesController {
     }
 
     const ext = extname(mod.file_path).toLowerCase();
-    const contentType = ext === '.pdf'
-      ? 'application/pdf'
-      : ext === '.mp4'
-        ? 'video/mp4'
-        : 'video/webm';
+    let contentType = 'application/octet-stream';
+    if (ext === '.pdf') contentType = 'application/pdf';
+    else if (ext === '.mp4') contentType = 'video/mp4';
+    else if (ext === '.webm') contentType = 'video/webm';
+    else if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext)) {
+      contentType = `image/${ext === '.jpg' || ext === '.jpeg' ? 'jpeg' : ext.substring(1)}`;
+    }
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename="${mod.title || 'file'}${ext}"`);

@@ -7,7 +7,7 @@ export default function AdminSectionsPage() {
     const [sections, setSections] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true });
+    const [form, setForm] = useState({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "" });
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const load = async () => {
@@ -27,7 +27,7 @@ export default function AdminSectionsPage() {
         e.preventDefault();
         try {
             const finalRoles = form.roles_allowed ? form.roles_allowed.split(',').map(r => r.trim()).filter(Boolean) : [];
-            const payload = { ...form, parent_id: form.parent_id || null, roles_allowed: finalRoles.length ? finalRoles : null };
+            const payload = { ...form, parent_id: form.parent_id || null, roles_allowed: finalRoles.length ? finalRoles : null, icon: form.icon || null };
             if (editingId) {
                 await sectionsApi.update(editingId, payload);
             } else {
@@ -35,7 +35,7 @@ export default function AdminSectionsPage() {
             }
             setShowForm(false);
             setEditingId(null);
-            setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true });
+            setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "" });
             load();
         } catch (err: any) {
             alert(err.message);
@@ -50,7 +50,8 @@ export default function AdminSectionsPage() {
             roles_allowed: section.roles_allowed ? section.roles_allowed.join(", ") : "",
             parent_id: section.parent_id || "",
             order: section.order,
-            visible: section.visible
+            visible: section.visible,
+            icon: section.icon || ""
         });
         setEditingId(section.id);
         setShowForm(true);
@@ -74,7 +75,7 @@ export default function AdminSectionsPage() {
                     <p className="text-slate-400 text-sm">Manage knowledge base sections</p>
                 </div>
                 <button
-                    onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true }); }}
+                    onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "" }); }}
                     className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white transition-colors"
                 >
                     + New Section
@@ -91,6 +92,15 @@ export default function AdminSectionsPage() {
                                 onChange={(e) => setForm({ ...form, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
                                 className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-1">Icon (Emoji/SVG)</label>
+                            <input
+                                value={form.icon}
+                                onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                placeholder="e.g. 📂"
                             />
                         </div>
                         <div>
@@ -181,7 +191,8 @@ export default function AdminSectionsPage() {
                                     {section.order}
                                 </div>
                                 <div>
-                                    <div className="font-medium text-white">
+                                    <div className="font-medium text-white flex items-center gap-2">
+                                        {section.icon && <span className="text-lg">{section.icon}</span>}
                                         {section.name}
                                         {section.parent_id && <span className="ml-2 text-xs font-normal text-slate-400 bg-slate-800 px-2 py-0.5 rounded">Sub-section</span>}
                                     </div>

@@ -4,32 +4,33 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ─── Auth & Users ────────────────────────────────────────
 
 model User {
-  id            String       @id @default(uuid())
-  email         String       @unique
+  id            String   @id @default(uuid())
+  email         String   @unique
   name          String?
-  auth_source   String       @default("local")
+  auth_source   String   @default("local")
   password_hash String?
-  status        String       @default("active")
-  created_at    DateTime     @default(now())
-  updated_at    DateTime     @updatedAt
+  status        String   @default("active")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
-  roles             UserRole[]
-  audit_logs        AuditLog[]
-  suggestions       Suggestion[]
-  created_pages     Page[]     @relation("PageCreatedBy")
-  updated_pages     Page[]     @relation("PageUpdatedBy")
+  roles         UserRole[]
+  audit_logs    AuditLog[]
+  suggestions   Suggestion[]
+  created_pages Page[]       @relation("PageCreatedBy")
+  updated_pages Page[]       @relation("PageUpdatedBy")
 
   @@map("users")
 }
 
 model Role {
-  id   String     @id @default(uuid())
-  name String     @unique
+  id   String @id @default(uuid())
+  name String @unique
 
   users UserRole[]
 
@@ -57,6 +58,7 @@ model Section {
   route         String?
   roles_allowed Json?
   order         Int      @default(0)
+  icon          String?
   visible       Boolean  @default(true)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
@@ -69,18 +71,19 @@ model Section {
 }
 
 model Page {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   section_id    String
   title         String
-  slug          String   @unique
-  status        String   @default("draft") // draft | published | archived
-  show_author   Boolean  @default(true)
-  show_metrics  Boolean  @default(true)
+  slug          String    @unique
+  status        String    @default("draft") // draft | published | archived
+  show_author   Boolean   @default(true)
+  show_metrics  Boolean   @default(true)
+  icon          String?
   created_by_id String?
   updated_by_id String?
   deleted_at    DateTime? // soft-delete
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
 
   section    Section  @relation(fields: [section_id], references: [id], onDelete: Cascade)
   created_by User?    @relation("PageCreatedBy", fields: [created_by_id], references: [id], onDelete: SetNull)
@@ -93,11 +96,11 @@ model Page {
 model Module {
   id         String    @id @default(uuid())
   page_id    String
-  type       String    // TEXT | PDF | VIDEO | URL
-  content    String?   // rich HTML/Markdown for TEXT modules
-  file_path  String?   // for PDF and VIDEO
-  url        String?   // for URL modules
-  title      String?   // display title for PDF/VIDEO/URL
+  type       String // TEXT | PDF | VIDEO | URL
+  content    String? // rich HTML/Markdown for TEXT modules
+  file_path  String? // for PDF and VIDEO
+  url        String? // for URL modules
+  title      String? // display title for PDF/VIDEO/URL
   order      Int       @default(0)
   deleted_at DateTime? // soft-delete
   created_at DateTime  @default(now())
@@ -137,4 +140,16 @@ model Suggestion {
   user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@map("suggestions")
+}
+
+// ─── Settings ────────────────────────────────────────────
+
+model Setting {
+  id         String   @id @default(uuid())
+  key        String   @unique // e.g., 'site_brand_icon', 'favicon'
+  value      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("settings")
 }

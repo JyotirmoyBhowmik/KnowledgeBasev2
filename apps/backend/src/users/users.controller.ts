@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, Body } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Body, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller('api/users')
@@ -13,6 +13,11 @@ export class UsersController {
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.usersService.findOne(id);
+    }
+
+    @Post()
+    create(@Body() body: any) {
+        return this.usersService.create(body);
     }
 
     @Patch(':id/roles')

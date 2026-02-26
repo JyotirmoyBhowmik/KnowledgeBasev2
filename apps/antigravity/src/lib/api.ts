@@ -89,6 +89,11 @@ export const modulesApi = {
 export const usersApi = {
     getAll: () => fetchApi<any[]>('/api/users'),
     getOne: (id: string) => fetchApi<any>(`/api/users/${id}`),
+    create: (data: any) =>
+        fetchApi<any>('/api/users', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        }),
     assignRole: (id: string, role: string) =>
         fetchApi<any>(`/api/users/${id}/roles`, {
             method: 'PATCH',
@@ -101,8 +106,8 @@ export const filesApi = {
     getFileUrl: (moduleId: string) => `/api/files/${moduleId}`,
     upload: async (file: File, type: string) => {
         const formData = new FormData();
-        formData.append('file', file);
         formData.append('type', type);
+        formData.append('file', file);
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         const res = await fetch(`${API_BASE}/api/files/upload`, {
             method: 'POST',
@@ -124,5 +129,13 @@ export const suggestionsApi = {
         fetchApi<any>(`/api/suggestions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     delete: (id: string) =>
         fetchApi<any>(`/api/suggestions/${id}`, { method: 'DELETE' }),
+};
+
+// ── Settings ─────────────────────────────────────────────
+export const settingsApi = {
+    getAll: () => fetchApi<any[]>('/api/settings'),
+    getByKey: (key: string) => fetchApi<any>(`/api/settings/${key}`),
+    update: (key: string, value: string) =>
+        fetchApi<any>(`/api/settings/${key}`, { method: 'PATCH', body: JSON.stringify({ value }) }),
 };
 

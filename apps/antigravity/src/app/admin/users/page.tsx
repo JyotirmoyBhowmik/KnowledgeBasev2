@@ -6,6 +6,9 @@ import { usersApi } from "@/lib/api";
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+    const [userForm, setUserForm] = useState({ name: "", email: "", role: "" });
+    const [creating, setCreating] = useState(false);
 
     const loadUsers = async () => {
         try {
@@ -29,12 +32,84 @@ export default function AdminUsersPage() {
         }
     };
 
+    const handleCreateUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setCreating(true);
+        try {
+            await usersApi.create(userForm);
+            setShowForm(false);
+            setUserForm({ name: "", email: "", role: "" });
+            loadUsers();
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setCreating(false);
+        }
+    };
+
     return (
         <div>
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-800">User Management</h1>
-                <p className="text-slate-500 text-sm">Manage system users and their roles</p>
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-800">User Management</h1>
+                    <p className="text-slate-500 text-sm">Manage system users and their roles</p>
+                </div>
+                <button
+                    onClick={() => setShowForm(!showForm)}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white transition-colors shadow-sm"
+                >
+                    + Add User
+                </button>
             </div>
+
+            {showForm && (
+                <form onSubmit={handleCreateUser} className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-4">Add New User</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                            <input
+                                required
+                                value={userForm.name}
+                                onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="Full Name"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                            <input
+                                required
+                                type="email"
+                                value={userForm.email}
+                                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="Email address"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Initial Role</label>
+                            <select
+                                value={userForm.role}
+                                onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                            >
+                                <option value="">User (Default)</option>
+                                <option value="admin">Admin</option>
+                                <option value="editor">Editor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="mt-4 flex gap-3">
+                        <button disabled={creating} type="submit" className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white shadow-sm disabled:opacity-50">
+                            {creating ? "Creating..." : "Create User"}
+                        </button>
+                        <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 rounded-lg text-sm font-medium text-slate-700">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            )}
 
             {loading ? (
                 <div className="text-slate-500 py-12">Loading users...</div>

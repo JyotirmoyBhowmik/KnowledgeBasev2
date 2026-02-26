@@ -12,7 +12,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
         res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
         // Prevent clickjacking
-        res.setHeader('X-Frame-Options', 'DENY');
+        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
 
         // Prevent MIME-type sniffing
         res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -23,7 +23,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
         // Content Security Policy (strict)
         res.setHeader(
             'Content-Security-Policy',
-            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://localhost:*; frame-ancestors 'none';",
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://localhost:*; frame-ancestors 'self' http://localhost:3000;",
         );
 
         // Permissions Policy

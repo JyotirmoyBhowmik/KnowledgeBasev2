@@ -19,14 +19,17 @@ export default function HomePage() {
         setRecentPages(published.slice(0, 10));
 
         // Map the backend sections tree to our sidebar UI format
-        const mappedMenus = sectionsTreeData.map((m: any) => ({
+        const mapSection = (m: any): any => ({
           label: m.name || m.label,
-          href: m.route || "#",
-          icon: m.label.includes("Home") ? "🏠" :
-            m.label.includes("Train") ? "📚" :
-              m.label.includes("Admin") ? "⚙️" : "🧠", // Default fallback icon
-          desc: m.children?.length ? `${m.children.length} items` : ""
-        }));
+          href: m.route || (m.slug ? `/sections/${m.slug}` : "#"),
+          icon: m.icon || (m.label?.includes("Home") ? "🏠" :
+            m.label?.includes("Train") ? "📚" :
+              m.label?.includes("Admin") ? "⚙️" : "🧠"),
+          desc: m.children?.length ? `${m.children.length} items` : "",
+          children: m.children?.map(mapSection) || []
+        });
+
+        const mappedMenus = sectionsTreeData.map(mapSection);
 
         // Ensure there is at least a Home / Admin link if DB is fully empty
         if (mappedMenus.length === 0) {
@@ -60,18 +63,34 @@ export default function HomePage() {
 
         <nav className="flex-1 py-4 space-y-2 overflow-y-auto">
           {sidebarItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsSidebarOpen(false)}
-              className="flex items-center gap-4 px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent hover:border-blue-500"
-            >
-              <span className="text-xl opacity-80">{item.icon}</span>
-              <div className="flex flex-col">
-                <span className="font-semibold">{item.label}</span>
-                {item.desc && <span className="text-xs font-normal text-slate-500">{item.desc}</span>}
-              </div>
-            </Link>
+            <div key={item.label}>
+              <Link
+                href={item.href}
+                onClick={() => !item.children?.length && setIsSidebarOpen(false)}
+                className="flex items-center gap-4 px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent hover:border-blue-500"
+              >
+                <span className="text-xl opacity-80">{item.icon}</span>
+                <div className="flex flex-col">
+                  <span className="font-semibold">{item.label}</span>
+                  {item.desc && <span className="text-xs font-normal text-slate-500">{item.desc}</span>}
+                </div>
+              </Link>
+              {item.children?.length > 0 && (
+                <div className="pl-12 pr-4 py-1 flex flex-col space-y-1 border-l border-slate-700 ml-8 mb-2">
+                  {item.children.map((child: any) => (
+                    <Link
+                      key={child.label}
+                      href={child.href}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className="text-sm font-medium text-slate-400 hover:text-white py-1.5 transition-colors flex items-center gap-3"
+                    >
+                      <span className="text-base opacity-70">{child.icon}</span>
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
       </aside>

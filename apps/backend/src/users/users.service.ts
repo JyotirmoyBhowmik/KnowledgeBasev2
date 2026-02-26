@@ -21,6 +21,24 @@ export class UsersService {
         return user;
     }
 
+    async create(data: any) {
+        const user = await this.prisma.user.create({
+            data: {
+                email: data.email,
+                name: data.name,
+                auth_source: 'local',
+                status: 'active',
+                roles: data.role ? {
+                    create: {
+                        role: { connect: { name: data.role } }
+                    }
+                } : undefined
+            },
+            include: { roles: { include: { role: true } } }
+        });
+        return user;
+    }
+
     async assignRole(userId: string, roleName: string) {
         const role = await this.prisma.role.findUnique({ where: { name: roleName } });
         if (!role) throw new NotFoundException(`Role "${roleName}" not found`);

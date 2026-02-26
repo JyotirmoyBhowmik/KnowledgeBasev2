@@ -10,6 +10,7 @@ import { PagesModule } from './pages/pages.module';
 import { ModulesModule } from './modules/modules.module';
 import { FilesModule } from './files/files.module';
 import { SuggestionsModule } from './suggestions/suggestions.module';
+import { SettingsModule } from './settings/settings.module';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
 
@@ -23,6 +24,7 @@ import { SecurityHeadersMiddleware } from './common/middleware/security-headers.
     ModulesModule,
     FilesModule,
     SuggestionsModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [
