@@ -1,7 +1,12 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+export const API_BASE = NEXT_PUBLIC_API_URL;
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
-    const url = `${API_BASE}${path}`;
+    const isServer = typeof window === 'undefined';
+    // Node.js fetch needs absolute URLs. If relative routing is enabled (empty string), route to local backend on SSR.
+    const _apiBase = (isServer && NEXT_PUBLIC_API_URL === '') ? 'http://localhost:4000' : NEXT_PUBLIC_API_URL;
+
+    const url = `${_apiBase}${path}`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
     const res = await fetch(url, {
