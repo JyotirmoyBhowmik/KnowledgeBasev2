@@ -40,8 +40,9 @@ sudo chown -R $(whoami):$(whoami) ${UPLOAD_DIR}
 
 # 5. Application
 echo "→ Deploying application..."
+echo "→ Deploying application..."
 sudo mkdir -p ${APP_DIR}
-sudo cp -r . ${APP_DIR}/
+sudo rsync -av --exclude 'node_modules' --exclude '.next' --exclude 'dist' ./ ${APP_DIR}/
 cd ${APP_DIR}
 
 npm ci
@@ -55,7 +56,7 @@ cd ${APP_DIR}/apps/backend
 pm2 start dist/main.js --name kb-backend --env PORT=4000
 
 cd ${APP_DIR}/apps/antigravity
-pm2 start npm --name kb-frontend -- start
+pm2 start "npx next start" --name kb-frontend
 
 pm2 save
 pm2 startup

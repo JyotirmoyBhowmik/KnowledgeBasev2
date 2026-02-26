@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from '../auth/auth.module';
 import { SuggestionsService } from './suggestions.service';
 import { SuggestionsController } from './suggestions.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-    imports: [PrismaModule, JwtModule.register({ secret: process.env.JWT_SECRET || 'secret' })],
+    imports: [PrismaModule, AuthModule],
     controllers: [SuggestionsController],
     providers: [SuggestionsService],
 })
