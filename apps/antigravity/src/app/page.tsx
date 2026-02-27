@@ -14,6 +14,9 @@ export default function HomePage() {
   const [searching, setSearching] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // New state for section filtering
+  const [selectedSection, setSelectedSection] = useState<string>("ALL");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -70,7 +73,14 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const displayPages = searchResults !== null ? searchResults : recentPages;
+  // Filter the display pages based on selected section
+  const displayPages = (searchResults !== null ? searchResults : recentPages).filter((page: any) => {
+    if (selectedSection === "ALL") return true;
+    return page.section?.name === selectedSection;
+  });
+
+  // Extract unique top-level sections from recent pages for the filter pills
+  const availableSections = Array.from(new Set(recentPages.map(p => p.section?.name).filter(Boolean)));
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900 overflow-hidden relative">
@@ -207,9 +217,32 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <h2 className="text-xl font-bold text-slate-800 tracking-tight">Recent Published Pages</h2>
-            <span className="text-xs font-bold text-blue-700 bg-blue-100 px-3 py-1.5 rounded-full border border-blue-200 shadow-sm uppercase tracking-wider">Top 10 Latest</span>
+
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+              <button
+                onClick={() => setSelectedSection("ALL")}
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border shadow-sm ${selectedSection === "ALL"
+                  ? "bg-blue-600 border-blue-600 text-white"
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+              >
+                ALL
+              </button>
+              {availableSections.map((sec: any) => (
+                <button
+                  key={sec}
+                  onClick={() => setSelectedSection(sec)}
+                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border shadow-sm ${selectedSection === sec
+                    ? "bg-blue-600 border-blue-600 text-white"
+                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                >
+                  {sec}
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading ? (
