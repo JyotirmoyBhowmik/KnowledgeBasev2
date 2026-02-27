@@ -26,6 +26,10 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
+        if (user.status === 'inactive') {
+            throw new UnauthorizedException('Your account has been deactivated. Please contact an administrator.');
+        }
+
         const isValid = await bcrypt.compare(password, user.password_hash);
         if (!isValid) {
             throw new UnauthorizedException('Invalid credentials');
@@ -89,6 +93,7 @@ export class AuthService {
         );
 
         if (!user) throw new UnauthorizedException('User not found');
+        if (user.status === 'inactive') throw new UnauthorizedException('Account deactivated');
 
         return {
             id: user.id,

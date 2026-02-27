@@ -113,6 +113,15 @@ export const usersApi = {
             method: 'PATCH',
             body: JSON.stringify({ role }),
         }),
+    update: (id: string, data: any) =>
+        fetchApi<any>(`/api/users/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        }),
+    deactivate: (id: string) =>
+        fetchApi<any>(`/api/users/${id}/deactivate`, { method: 'PATCH' }),
+    activate: (id: string) =>
+        fetchApi<any>(`/api/users/${id}/activate`, { method: 'PATCH' }),
 };
 
 // ── Files ────────────────────────────────────────────

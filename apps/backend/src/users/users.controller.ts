@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Patch, Body, Post, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Body, Post, Delete, UseGuards, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -19,6 +20,11 @@ export class UsersController {
     @Post()
     create(@Body() body: any) { return this.usersService.create(body); }
 
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() dto: UpdateUserDto, @Request() req: any) {
+        return this.usersService.update(id, dto, req.user.id);
+    }
+
     @Patch(':id/roles')
     assignRole(@Param('id') id: string, @Body() body: { role: string }) {
         return this.usersService.assignRole(id, body.role);
@@ -30,8 +36,8 @@ export class UsersController {
     }
 
     @Patch(':id/deactivate')
-    deactivate(@Param('id') id: string) { return this.usersService.deactivate(id); }
+    deactivate(@Param('id') id: string, @Request() req: any) { return this.usersService.deactivate(id, req.user.id); }
 
     @Patch(':id/activate')
-    activate(@Param('id') id: string) { return this.usersService.activate(id); }
+    activate(@Param('id') id: string, @Request() req: any) { return this.usersService.activate(id, req.user.id); }
 }

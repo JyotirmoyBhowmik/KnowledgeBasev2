@@ -10,6 +10,11 @@ export default function AdminUsersPage() {
     const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "viewer" });
     const [creating, setCreating] = useState(false);
 
+    // Edit functionality
+    const [editingUser, setEditingUser] = useState<any>(null);
+    const [editForm, setEditForm] = useState({ name: "", email: "", role: "" });
+    const [updating, setUpdating] = useState(false);
+
     const loadUsers = async () => {
         try {
             const data = await usersApi.getAll();
@@ -44,6 +49,42 @@ export default function AdminUsersPage() {
             alert(err.message);
         } finally {
             setCreating(false);
+        }
+    };
+
+    const handleEditClick = (u: any) => {
+        setEditingUser(u);
+        const primaryRole = u.roles?.length ? (u.roles[0].role?.name || u.roles[0].name) : "viewer";
+        setEditForm({ name: u.name || "", email: u.email || "", role: primaryRole });
+    };
+
+    const handleUpdateUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingUser) return;
+        setUpdating(true);
+        try {
+            await usersApi.update(editingUser.id, { name: editForm.name, email: editForm.email, role: editForm.role });
+            setEditingUser(null);
+            loadUsers();
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    const toggleStatus = async (user: any) => {
+        try {
+            if (user.status === 'active') {
+                if (confirm(`Are you sure you want to deactivate ${user.name}? They will lose access.`)) {
+                    await usersApi.deactivate(user.id);
+                }
+            } else {
+                await usersApi.activate(user.id);
+            }
+            loadUsers();
+        } catch (err: any) {
+            alert(err.message);
         }
     };
 
@@ -103,6 +144,45 @@ export default function AdminUsersPage() {
                 </form>
             )}
 
+            {editingUser && (
+                <div className="fixed inset-0 bg-slate-900/40 z-50 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        <h3 className="text-lg font-semibold text-slate-800 mb-4">Edit User Profile</h3>
+                        <form onSubmit={handleUpdateUser} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                                <input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Full Name" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                <input required type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Primary Role</label>
+                                <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                                    <option value="viewer">Viewer</option>
+                                    <option value="contributor">Contributor</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="super_admin">Super Admin</option>
+                                </select>
+                                <p className="text-xs text-slate-500 mt-1">This will override current roles.</p>
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button disabled={updating} type="submit" className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white shadow-sm disabled:opacity-50">
+                                    {updating ? "Saving..." : "Save Changes"}
+                                </button>
+                                <button type="button" onClick={() => setEditingUser(null)} className="py-2 px-4 bg-slate-200 hover:bg-slate-300 rounded-lg text-sm font-medium text-slate-700">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {loading ? (
                 <div className="text-slate-500 py-12">Loading users...</div>
             ) : (
@@ -141,18 +221,22 @@ export default function AdminUsersPage() {
                                             )) : <span className="text-slate-400 text-xs italic">No roles</span>}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <select
-                                            onChange={(e) => { if (e.target.value) assignRole(u.id, e.target.value); e.target.value = ""; }}
-                                            className="uppercase text-xs font-bold tracking-wider py-1.5 px-2 border border-slate-200 rounded text-slate-700 bg-white hover:bg-slate-50 cursor-pointer outline-none focus:ring-2 focus:ring-blue-500"
-                                            defaultValue=""
+                                    <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                        <button
+                                            onClick={() => handleEditClick(u)}
+                                            className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 rounded hover:bg-slate-200 transition-colors uppercase tracking-wide"
                                         >
-                                            <option value="" disabled>Assign Role...</option>
-                                            <option value="viewer">Viewer</option>
-                                            <option value="contributor">Contributor</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="super_admin">Super Admin</option>
-                                        </select>
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => toggleStatus(u)}
+                                            className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wide rounded border transition-colors ${u.status === 'active'
+                                                ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                                                : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                                }`}
+                                        >
+                                            {u.status === 'active' ? 'Deactivate' : 'Activate'}
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
