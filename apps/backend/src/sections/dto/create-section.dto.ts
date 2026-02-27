@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, Number, IsNumber, IsBoolean, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean, Matches } from 'class-validator';
 
 export class CreateSectionDto {
     @IsString()
