@@ -10,10 +10,10 @@ export class SectionsService {
   async create(dto: CreateSectionDto) {
     try {
       return await this.db.queryOne(
-        `INSERT INTO sections (name, slug, route, roles_allowed, "order", icon, visible, parent_id)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+        `INSERT INTO sections (name, slug, route, roles_allowed, "order", icon, visible, parent_id, show_on_homepage, homepage_order)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
         [dto.name, dto.slug, (dto as any).route || null, (dto as any).roles_allowed ? JSON.stringify((dto as any).roles_allowed) : null,
-        (dto as any).order || 0, (dto as any).icon || null, (dto as any).visible !== false, (dto as any).parent_id || null],
+        (dto as any).order || 0, (dto as any).icon || null, (dto as any).visible !== false, (dto as any).parent_id || null, (dto as any).show_on_homepage !== false, (dto as any).homepage_order || 0],
       );
     } catch (err: any) {
       if (err.code === '23505') throw new ConflictException(`Section with slug "${dto.slug}" or name "${dto.name}" already exists`);
@@ -93,7 +93,7 @@ export class SectionsService {
     const values: any[] = [];
     let idx = 1;
 
-    const ALLOWED_COLS = new Set(['name', 'slug', 'route', 'roles_allowed', 'order', 'icon', 'visible', 'parent_id']);
+    const ALLOWED_COLS = new Set(['name', 'slug', 'route', 'roles_allowed', 'order', 'icon', 'visible', 'parent_id', 'show_on_homepage', 'homepage_order']);
     for (const [key, value] of Object.entries(dto)) {
       if (value !== undefined && ALLOWED_COLS.has(key)) {
         const col = key === 'order' ? `"order"` : key;

@@ -7,7 +7,7 @@ export default function AdminSectionsPage() {
     const [sections, setSections] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "" });
+    const [form, setForm] = useState({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "", show_on_homepage: true, homepage_order: 0 });
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const load = async () => {
@@ -35,7 +35,7 @@ export default function AdminSectionsPage() {
             }
             setShowForm(false);
             setEditingId(null);
-            setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "" });
+            setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "", show_on_homepage: true, homepage_order: 0 });
             load();
         } catch (err: any) {
             alert(err.message);
@@ -51,7 +51,9 @@ export default function AdminSectionsPage() {
             parent_id: section.parent_id || "",
             order: section.order,
             visible: section.visible,
-            icon: section.icon || ""
+            icon: section.icon || "",
+            show_on_homepage: section.show_on_homepage !== false,
+            homepage_order: section.homepage_order || 0
         });
         setEditingId(section.id);
         setShowForm(true);
@@ -75,7 +77,7 @@ export default function AdminSectionsPage() {
                     <p className="text-slate-400 text-sm">Manage knowledge base sections</p>
                 </div>
                 <button
-                    onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "" }); }}
+                    onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: "", slug: "", route: "", roles_allowed: "", parent_id: "", order: 0, visible: true, icon: "", show_on_homepage: true, homepage_order: 0 }); }}
                     className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white transition-colors"
                 >
                     + New Section
@@ -152,7 +154,16 @@ export default function AdminSectionsPage() {
                                 ))}
                             </select>
                         </div>
-                        <div className="flex items-end">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-1">Homepage Filter Order</label>
+                            <input
+                                type="number"
+                                value={form.homepage_order}
+                                onChange={(e) => setForm({ ...form, homepage_order: parseInt(e.target.value) || 0 })}
+                                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            />
+                        </div>
+                        <div className="flex items-end gap-6">
                             <label className="flex items-center gap-2 text-sm text-slate-300">
                                 <input
                                     type="checkbox"
@@ -160,7 +171,16 @@ export default function AdminSectionsPage() {
                                     onChange={(e) => setForm({ ...form, visible: e.target.checked })}
                                     className="rounded border-slate-600"
                                 />
-                                Visible
+                                Visible (Sidebar)
+                            </label>
+                            <label className="flex items-center gap-2 text-sm text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    checked={form.show_on_homepage}
+                                    onChange={(e) => setForm({ ...form, show_on_homepage: e.target.checked })}
+                                    className="rounded border-slate-600"
+                                />
+                                Show as filter on Homepage
                             </label>
                         </div>
                     </div>
@@ -200,10 +220,14 @@ export default function AdminSectionsPage() {
                                         /{section.slug} · {section.pages?.length || 0} pages
                                         {section.route && ` · Route: ${section.route}`}
                                         {section.roles_allowed && section.roles_allowed.length > 0 && ` · Roles: ${section.roles_allowed.join(', ')}`}
+                                        {section.show_on_homepage && ` · Homepage Filter Order: ${section.homepage_order || 0}`}
                                     </div>
                                 </div>
                                 {!section.visible && (
-                                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 text-xs rounded-full">Hidden</span>
+                                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 text-xs rounded-full">Hidden UI</span>
+                                )}
+                                {!section.show_on_homepage && (
+                                    <span className="px-2 py-0.5 bg-slate-500/10 text-slate-400 text-xs rounded-full">No Homepage Filter</span>
                                 )}
                             </div>
                             <div className="flex gap-2">
