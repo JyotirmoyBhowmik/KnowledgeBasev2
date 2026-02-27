@@ -11,6 +11,18 @@ export default function AdminPagesPage() {
     const [form, setForm] = useState({ title: "", slug: "", section_id: "", status: "draft" });
     const [editingId, setEditingId] = useState<string | null>(null);
 
+    const handleEditSettings = (page: any) => {
+        setEditingId(page.id);
+        setForm({
+            title: page.title || "",
+            slug: page.slug || "",
+            section_id: page.section_id || sections[0]?.id || "",
+            status: page.status || "draft"
+        });
+        setShowForm(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
     const load = async () => {
         try {
             const [p, s] = await Promise.all([pagesApi.getAll(), sectionsApi.getAll()]);
@@ -139,6 +151,7 @@ export default function AdminPagesPage() {
                                 {page.status === "published" && (
                                     <button onClick={() => handleArchive(page.id)} className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 rounded-lg text-xs text-amber-400">Archive</button>
                                 )}
+                                <button onClick={() => handleEditSettings(page)} className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg text-xs text-blue-400">Settings</button>
                                 <a href={`/admin/pages/${page.id}`} className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs text-slate-300">Edit Modules</a>
                                 <button onClick={() => handleDelete(page.id)} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-xs text-red-400">Delete</button>
                             </div>
