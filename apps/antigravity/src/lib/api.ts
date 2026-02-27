@@ -190,10 +190,12 @@ export const templatesApi = {
 
 // ── Activity ─────────────────────────────────────────────
 export const activityApi = {
-    getAll: (params?: { userId?: string; entityType?: string; limit?: number }) => {
+    getAll: (params?: { userId?: string; entityType?: string; startDate?: string; endDate?: string; limit?: number }) => {
         const qs = new URLSearchParams();
         if (params?.userId) qs.set('userId', params.userId);
         if (params?.entityType) qs.set('entityType', params.entityType);
+        if (params?.startDate) qs.set('startDate', params.startDate);
+        if (params?.endDate) qs.set('endDate', params.endDate);
         if (params?.limit) qs.set('limit', String(params.limit));
         return fetchApi<any[]>(`/api/activity?${qs.toString()}`);
     },

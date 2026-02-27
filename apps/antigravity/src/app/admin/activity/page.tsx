@@ -6,13 +6,15 @@ import { activityApi } from "@/lib/api";
 export default function AdminActivityPage() {
     const [activities, setActivities] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState({ entityType: "", limit: 50 });
+    const [filter, setFilter] = useState({ entityType: "", startDate: "", endDate: "", limit: 50 });
 
     const load = async () => {
         setLoading(true);
         try {
             const data = await activityApi.getAll({
                 entityType: filter.entityType || undefined,
+                startDate: filter.startDate || undefined,
+                endDate: filter.endDate || undefined,
                 limit: filter.limit,
             });
             setActivities(data);
@@ -48,6 +50,20 @@ export default function AdminActivityPage() {
                         <option value="section">Sections</option>
                         <option value="user">Users</option>
                     </select>
+                    <input
+                        type="date"
+                        value={filter.startDate}
+                        onChange={(e) => setFilter({ ...filter, startDate: e.target.value })}
+                        className="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+                        title="Start Date"
+                    />
+                    <input
+                        type="date"
+                        value={filter.endDate}
+                        onChange={(e) => setFilter({ ...filter, endDate: e.target.value })}
+                        className="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+                        title="End Date"
+                    />
                     <select
                         value={filter.limit}
                         onChange={(e) => setFilter({ ...filter, limit: Number(e.target.value) })}
@@ -75,6 +91,7 @@ export default function AdminActivityPage() {
                                 <th className="px-6 py-4">User</th>
                                 <th className="px-6 py-4">Action</th>
                                 <th className="px-6 py-4">Entity</th>
+                                <th className="px-6 py-4">IP Address</th>
                                 <th className="px-6 py-4">Details</th>
                                 <th className="px-6 py-4">Time</th>
                             </tr>
@@ -94,6 +111,7 @@ export default function AdminActivityPage() {
                                         <span className="font-medium">{a.entity_type}</span>
                                         <span className="text-slate-400 ml-1">#{a.entity_id?.slice(0, 8)}</span>
                                     </td>
+                                    <td className="px-6 py-3 text-xs font-mono text-slate-500">{a.ip_address || "—"}</td>
                                     <td className="px-6 py-3 text-xs text-slate-500 max-w-[200px] truncate">{a.details || "—"}</td>
                                     <td className="px-6 py-3 text-xs text-slate-500">
                                         {new Date(a.created_at).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}

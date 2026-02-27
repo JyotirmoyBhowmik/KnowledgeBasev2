@@ -11,6 +11,7 @@ export default function AdminSettingsPage() {
     const [favicon, setFavicon] = useState("");
     const [brandFile, setBrandFile] = useState<File | null>(null);
     const [faviconFile, setFaviconFile] = useState<File | null>(null);
+    const [retentionDays, setRetentionDays] = useState("30");
 
     const load = async () => {
         try {
@@ -18,8 +19,10 @@ export default function AdminSettingsPage() {
             setSettings(data);
             const bi = data.find((s: any) => s.key === "site_brand_icon");
             const fav = data.find((s: any) => s.key === "favicon");
+            const ret = data.find((s: any) => s.key === "activity_log_retention_days");
             if (bi) setBrandIcon(bi.value);
             if (fav) setFavicon(fav.value);
+            if (ret) setRetentionDays(ret.value);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     };
@@ -41,6 +44,7 @@ export default function AdminSettingsPage() {
             } else if (favicon) {
                 await settingsApi.update("favicon", favicon);
             }
+            await settingsApi.update("activity_log_retention_days", retentionDays.toString() || "30");
             alert("Settings saved!");
             load();
         } catch (err: any) {
@@ -118,6 +122,20 @@ export default function AdminSettingsPage() {
                             ) : (
                                 <span className="text-xs text-slate-400">{favicon || "ico"}</span>
                             )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* System Settings */}
+                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">⚙️ System Configuration</h3>
+                    <p className="text-sm text-slate-500 mb-4">Manage deep system behaviors</p>
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Activity Log Retention (Days)</label>
+                            <input type="number" min="1" max="3650" value={retentionDays} onChange={(e) => setRetentionDays(e.target.value)}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="30" />
+                            <p className="text-xs text-slate-400 mt-1">Logs older than this will be permanently purged.</p>
                         </div>
                     </div>
                 </div>
