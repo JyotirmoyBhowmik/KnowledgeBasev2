@@ -12,11 +12,15 @@ export default function AdminDashboard() {
             pagesApi.getAll().catch(() => []),
             usersApi.getAll().catch(() => [])
         ]).then(([secs, pgs, usrs]) => {
+            const sections = Array.isArray(secs) ? secs : [];
+            const pages = Array.isArray(pgs) ? pgs : [];
+            const users = Array.isArray(usrs) ? usrs : [];
+
             setStats({
-                sections: secs.length || 0,
-                pages: pgs.length || 0,
-                users: usrs.length || 0,
-                viewers: usrs.filter((u: any) => u.roles?.includes("viewer")).length || 0
+                sections: sections.length,
+                pages: pages.length,
+                users: users.length,
+                viewers: users.filter((u: any) => u.roles?.includes("viewer")).length
             });
         });
     }, []);

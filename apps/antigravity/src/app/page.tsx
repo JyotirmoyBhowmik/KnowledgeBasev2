@@ -23,7 +23,7 @@ export default function HomePage() {
           fetch(`${API_BASE}/api/settings`).then(r => r.json()).catch(() => [])
         ]);
 
-        setRecentPages(recentPagesData);
+        setRecentPages(Array.isArray(recentPagesData) ? recentPagesData : []);
 
         const formattedSettings: any = {};
         if (Array.isArray(settingsRes)) {
@@ -42,7 +42,7 @@ export default function HomePage() {
           children: m.children?.map(mapSection) || []
         });
 
-        const mappedMenus = sectionsTreeData.map(mapSection);
+        const mappedMenus = Array.isArray(sectionsTreeData) ? sectionsTreeData.map(mapSection) : [];
         if (mappedMenus.length === 0) {
           mappedMenus.push({ label: "Admin Portal", href: "/admin", icon: "⚙️", desc: "Configuration" });
         }
@@ -63,7 +63,7 @@ export default function HomePage() {
       setSearching(true);
       try {
         const results = await publicApi.search(searchQuery);
-        setSearchResults(results);
+        setSearchResults(Array.isArray(results) ? results : []);
       } catch { setSearchResults([]); }
       finally { setSearching(false); }
     }, 300);
@@ -235,7 +235,7 @@ export default function HomePage() {
                     <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-black border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
                       📄
                     </div>
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1.5 rounded-md border border-slate-100">
+                    <span suppressHydrationWarning className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1.5 rounded-md border border-slate-100">
                       {new Date(page.created_at).toLocaleDateString("en-GB", { day: '2-digit', month: 'short' })}
                     </span>
                   </div>
