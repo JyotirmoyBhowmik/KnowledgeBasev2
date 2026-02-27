@@ -16,6 +16,7 @@ export class SectionsService {
         (dto as any).order || 0, (dto as any).icon || null, (dto as any).visible !== false, (dto as any).parent_id || null, (dto as any).show_on_homepage !== false, (dto as any).homepage_order || 0],
       );
     } catch (err: any) {
+      require('fs').writeFileSync('/tmp/backend_error.log', err.stack || err.toString());
       if (err.code === '23505') throw new ConflictException(`Section with slug "${dto.slug}" or name "${dto.name}" already exists`);
       throw err;
     }
@@ -111,6 +112,7 @@ export class SectionsService {
         values,
       );
     } catch (err: any) {
+      require('fs').writeFileSync('/tmp/backend_error.log', err.stack || err.toString());
       if (err.code === '23505') throw new ConflictException(`Unique constraint violation (duplicate slug/name)`);
       throw err;
     }
