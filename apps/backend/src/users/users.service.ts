@@ -40,7 +40,7 @@ export class UsersService {
         return user;
     }
 
-    async create(data: any) {
+    async create(data: any, adminId?: string, ip?: string) {
         // Check duplicate email
         const existing = await this.db.queryOne(`SELECT id FROM users WHERE email = $1`, [data.email]);
         if (existing) throw new ConflictException(`User with email "${data.email}" already exists`);
@@ -67,10 +67,11 @@ export class UsersService {
             }
         }
 
+        if (adminId) this.activity.log(adminId, 'created', 'user', user!.id, `Created new user ${data.email}`, ip).catch(() => { });
         return this.findOne(user!.id);
     }
 
-    async update(userId: string, data: any, adminId: string) {
+    async update(userId: string, data: any, adminId: string, ip?: string) {
         // Prevent setting the email to an already existing one
         if (data.email) {
             const existing = await this.db.queryOne(`SELECT id FROM users WHERE email = $1 AND id != $2`, [data.email, userId]);
@@ -98,7 +99,7 @@ export class UsersService {
             await this.assignRole(userId, data.role);
         }
 
-        this.activity.log(adminId, 'edited', 'user', userId, `Admin modified user ${userId}`).catch(() => { });
+        this.activity.log(adminId, 'edited', 'user', userId, `Admin modified user ${userId}`, ip).catch(() => { });
         return this.findOne(userId);
     }
 
@@ -119,15 +120,15 @@ export class UsersService {
         return this.findOne(userId);
     }
 
-    async deactivate(userId: string, adminId?: string) {
+    async deactivate(userId: string, adminId?: string, ip?: string) {
         await this.db.execute(`UPDATE users SET status = 'inactive', updated_at = NOW() WHERE id = $1`, [userId]);
-        if (adminId) this.activity.log(adminId, 'deleted', 'user', userId, `Admin deactivated user ${userId}`).catch(() => { });
+        if (adminId) this.activity.log(adminId, 'deleted', 'user', userId, `Admin deactivated user ${userId}`, ip).catch(() => { });
         return this.findOne(userId);
     }
 
-    async activate(userId: string, adminId?: string) {
+    async activate(userId: string, adminId?: string, ip?: string) {
         await this.db.execute(`UPDATE users SET status = 'active', updated_at = NOW() WHERE id = $1`, [userId]);
-        if (adminId) this.activity.log(adminId, 'edited', 'user', userId, `Admin reactivated user ${userId}`).catch(() => { });
+        if (adminId) this.activity.log(adminId, 'edited', 'user', userId, `Admin reactivated user ${userId}`, ip).catch(() => { });
         return this.findOne(userId);
     }
 }

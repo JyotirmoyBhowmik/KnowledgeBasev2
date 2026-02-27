@@ -21,7 +21,7 @@ export class PagesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin', 'contributor')
   create(@Body() dto: CreatePageDto, @Request() req: any) {
-    return this.pagesService.create({ ...dto, created_by_id: req.user?.sub } as any);
+    return this.pagesService.create({ ...dto, created_by_id: req.user?.sub } as any, req.ip);
   }
 
   @Get()
@@ -55,28 +55,28 @@ export class PagesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin', 'contributor')
   update(@Param('id') id: string, @Body() dto: UpdatePageDto, @Request() req: any) {
-    return this.pagesService.update(id, dto, req.user?.sub);
+    return this.pagesService.update(id, dto, req.user?.sub, req.ip);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin', 'contributor')
   remove(@Param('id') id: string, @Request() req: any) {
-    return this.pagesService.remove(id, req.user?.sub);
+    return this.pagesService.remove(id, req.user?.sub, req.ip);
   }
 
   @Patch(':id/publish')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
   publish(@Param('id') id: string, @Request() req: any) {
-    return this.pagesService.publish(id, req.user?.sub);
+    return this.pagesService.publish(id, req.user?.sub, req.ip);
   }
 
   @Patch(':id/archive')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
   archive(@Param('id') id: string, @Request() req: any) {
-    return this.pagesService.archive(id, req.user?.sub);
+    return this.pagesService.archive(id, req.user?.sub, req.ip);
   }
 
   @Patch(':id/submit-review')
@@ -90,21 +90,21 @@ export class PagesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
   approve(@Param('id') id: string, @Request() req: any) {
-    return this.pagesService.approve(id, req.user?.sub);
+    return this.pagesService.approve(id, req.user?.sub, req.ip);
   }
 
   @Patch(':id/reject')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
   reject(@Param('id') id: string, @Request() req: any) {
-    return this.pagesService.reject(id, req.user?.sub);
+    return this.pagesService.reject(id, req.user?.sub, req.ip);
   }
 
   @Patch(':id/restore')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
   restore(@Param('id') id: string, @Request() req: any) {
-    return this.pagesService.restore(id, req.user?.sub);
+    return this.pagesService.restore(id, req.user?.sub, req.ip);
   }
 
   @Delete(':id/permanent')
@@ -118,6 +118,6 @@ export class PagesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin', 'contributor')
   duplicate(@Param('id') id: string, @Request() req: any) {
-    return this.pagesService.duplicate(id, req.user?.sub);
+    return this.pagesService.duplicate(id, req.user?.sub, req.ip);
   }
 }

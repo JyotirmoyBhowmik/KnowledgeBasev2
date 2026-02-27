@@ -31,8 +31,8 @@ export class SectionsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
-  create(@Body() dto: CreateSectionDto) {
-    return this.sectionsService.create(dto);
+  create(@Request() req: any, @Body() dto: CreateSectionDto) {
+    return this.sectionsService.create(req.user?.id, req.ip, dto);
   }
 
   @Get(':id')
@@ -43,21 +43,21 @@ export class SectionsController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
-  update(@Param('id') id: string, @Body() dto: UpdateSectionDto) {
-    return this.sectionsService.update(id, dto);
+  update(@Request() req: any, @Param('id') id: string, @Body() dto: UpdateSectionDto) {
+    return this.sectionsService.update(req.user?.id, req.ip, id, dto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
-  remove(@Param('id') id: string) {
-    return this.sectionsService.remove(id);
+  remove(@Request() req: any, @Param('id') id: string) {
+    return this.sectionsService.remove(req.user?.id, req.ip, id);
   }
 
   @Patch('reorder')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'super_admin')
-  reorder(@Body() body: { orderedIds: string[] }) {
-    return this.sectionsService.reorder(body.orderedIds);
+  reorder(@Request() req: any, @Body() body: { orderedIds: string[] }) {
+    return this.sectionsService.reorder(req.user?.id, req.ip, body.orderedIds);
   }
 }

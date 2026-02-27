@@ -18,11 +18,11 @@ export class UsersController {
     findOne(@Param('id') id: string) { return this.usersService.findOne(id); }
 
     @Post()
-    create(@Body() body: any) { return this.usersService.create(body); }
+    create(@Body() body: any, @Request() req: any) { return this.usersService.create(body, req.user?.id, req.ip); }
 
     @Patch(':id')
     update(@Param('id') id: string, @Body() dto: UpdateUserDto, @Request() req: any) {
-        return this.usersService.update(id, dto, req.user.id);
+        return this.usersService.update(id, dto, req.user?.id, req.ip);
     }
 
     @Patch(':id/roles')
@@ -36,8 +36,8 @@ export class UsersController {
     }
 
     @Patch(':id/deactivate')
-    deactivate(@Param('id') id: string, @Request() req: any) { return this.usersService.deactivate(id, req.user.id); }
+    deactivate(@Param('id') id: string, @Request() req: any) { return this.usersService.deactivate(id, req.user?.id, req.ip); }
 
     @Patch(':id/activate')
-    activate(@Param('id') id: string, @Request() req: any) { return this.usersService.activate(id, req.user.id); }
+    activate(@Param('id') id: string, @Request() req: any) { return this.usersService.activate(id, req.user?.id, req.ip); }
 }

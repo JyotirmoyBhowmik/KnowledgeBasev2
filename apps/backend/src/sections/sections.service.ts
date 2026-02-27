@@ -3,18 +3,25 @@ import { DatabaseService } from '../database/database.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
 
+import { ActivityService } from '../activity/activity.service';
+
 @Injectable()
 export class SectionsService {
-  constructor(private readonly db: DatabaseService) { }
+  constructor(
+    private readonly db: DatabaseService,
+    private readonly activity: ActivityService
+  ) { }
 
-  async create(dto: CreateSectionDto) {
+  async create(userId: string, ip: string, dto: CreateSectionDto) {
     try {
-      return await this.db.queryOne(
+      const section = await this.db.queryOne(
         `INSERT INTO sections (name, slug, route, roles_allowed, "order", icon, visible, parent_id, show_on_homepage, homepage_order)
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
         [dto.name, dto.slug, (dto as any).route || null, (dto as any).roles_allowed ? JSON.stringify((dto as any).roles_allowed) : null,
         (dto as any).order || 0, (dto as any).icon || null, (dto as any).visible !== false, (dto as any).parent_id || null, (dto as any).show_on_homepage !== false, (dto as any).homepage_order || 0],
       );
+      if (section) this.activity.log(userId, 'created', 'section', section.id, `Created section "${dto.name}"`, ip).catch(() => { });
+      return section;
     } catch (err: any) {
       require('fs').writeFileSync('/tmp/backend_error.log', err.stack || err.toString());
       if (err.code === '23505') throw new ConflictException(`Section with slug "${dto.slug}" or name "${dto.name}" already exists`);
@@ -88,7 +95,7 @@ export class SectionsService {
     return section;
   }
 
-  async update(id: string, dto: UpdateSectionDto) {
+  async update(userId: string, ip: string, id: string, dto: UpdateSectionDto) {
     await this.findOne(id);
     const fields: string[] = [];
     const values: any[] = [];
@@ -107,10 +114,12 @@ export class SectionsService {
     values.push(id);
 
     try {
-      return await this.db.queryOne(
+      const updated = await this.db.queryOne(
         `UPDATE sections SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
         values,
       );
+      if (updated) this.activity.log(userId, 'updated', 'section', id, `Updated section settings for "${dto.name || 'section'}"`, ip).catch(() => { });
+      return updated;
     } catch (err: any) {
       require('fs').writeFileSync('/tmp/backend_error.log', err.stack || err.toString());
       if (err.code === '23505') throw new ConflictException(`Unique constraint violation (duplicate slug/name)`);
@@ -118,18 +127,20 @@ export class SectionsService {
     }
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(userId: string, ip: string, id: string) {
+    const section = await this.findOne(id);
     await this.db.execute(`DELETE FROM sections WHERE id = $1`, [id]);
+    this.activity.log(userId, 'deleted', 'section', id, `Deleted section "${section.name}"`, ip).catch(() => { });
     return { deleted: true };
   }
 
-  async reorder(orderedIds: string[]) {
+  async reorder(userId: string, ip: string, orderedIds: string[]) {
     await this.db.transaction(async (client) => {
       for (let i = 0; i < orderedIds.length; i++) {
         await client.query(`UPDATE sections SET "order" = $1 WHERE id = $2`, [i, orderedIds[i]]);
       }
     });
+    this.activity.log(userId, 'updated', 'sections', 'all', `Reordered knowledge base sections`, ip).catch(() => { });
     return { reordered: true };
   }
 }

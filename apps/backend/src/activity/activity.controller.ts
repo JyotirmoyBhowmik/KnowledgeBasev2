@@ -14,11 +14,15 @@ export class ActivityController {
     findAll(
         @Query('userId') userId?: string,
         @Query('entityType') entityType?: string,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
         @Query('limit') limit?: string,
     ) {
         return this.activityService.findAll({
             userId,
             entityType,
+            startDate,
+            endDate,
             limit: limit ? parseInt(limit) : undefined,
         });
     }

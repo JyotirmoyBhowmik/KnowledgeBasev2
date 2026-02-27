@@ -40,7 +40,7 @@ export class PagesService {
     }
   }
 
-  async create(dto: CreatePageDto) {
+  async create(dto: CreatePageDto, ip?: string) {
     // Auto-generate slug if not provided
     const slug = (dto as any).slug || this.generateSlug(dto.title);
     const uniqueSlug = await this.ensureUniqueSlug(slug);
@@ -56,7 +56,7 @@ export class PagesService {
       if (page) {
         page.section = await this.db.queryOne(`SELECT * FROM sections WHERE id = $1`, [page.section_id]);
         if ((dto as any).created_by_id) {
-          this.activity.log((dto as any).created_by_id, 'created', 'page', page.id, `Created page "${dto.title}"`).catch(() => { });
+          this.activity.log((dto as any).created_by_id, 'created', 'page', page.id, `Created page "${dto.title}"`, ip).catch(() => { });
         }
       }
       return page;
@@ -119,7 +119,7 @@ export class PagesService {
     return page;
   }
 
-  async update(id: string, dto: UpdatePageDto, userId?: string) {
+  async update(id: string, dto: UpdatePageDto, userId?: string, ip?: string) {
     await this.findOne(id);
     const fields: string[] = [];
     const values: any[] = [];
@@ -143,7 +143,7 @@ export class PagesService {
         values,
       );
       if (userId && page) {
-        this.activity.log(userId, 'updated', 'page', id, `Updated page "${page.title}"`).catch(() => { });
+        this.activity.log(userId, 'updated', 'page', id, `Updated page "${page.title}"`, ip).catch(() => { });
       }
       return page;
     } catch (err: any) {
@@ -152,28 +152,28 @@ export class PagesService {
     }
   }
 
-  async remove(id: string, userId?: string) {
+  async remove(id: string, userId?: string, ip?: string) {
     const page = await this.findOne(id);
     const result = await this.db.queryOne(`UPDATE pages SET deleted_at = NOW() WHERE id = $1 RETURNING *`, [id]);
     if (userId) {
-      this.activity.log(userId, 'deleted', 'page', id, `Moved page "${page.title}" to trash`).catch(() => { });
+      this.activity.log(userId, 'deleted', 'page', id, `Moved page "${page.title}" to trash`, ip).catch(() => { });
     }
     return result;
   }
 
-  async publish(id: string, userId?: string) {
+  async publish(id: string, userId?: string, ip?: string) {
     const page = await this.findOne(id);
     const result = await this.db.queryOne(
       `UPDATE pages SET status = 'published', updated_by_id = $2, updated_at = NOW() WHERE id = $1 RETURNING *`,
       [id, userId || null],
     );
     if (userId) {
-      this.activity.log(userId, 'published', 'page', id, `Published page "${page.title}"`).catch(() => { });
+      this.activity.log(userId, 'published', 'page', id, `Published page "${page.title}"`, ip).catch(() => { });
     }
     return result;
   }
 
-  async archive(id: string, userId?: string) {
+  async archive(id: string, userId?: string, ip?: string) {
     await this.findOne(id);
     return this.db.queryOne(
       `UPDATE pages SET status = 'archived', updated_by_id = $2, updated_at = NOW() WHERE id = $1 RETURNING *`,
@@ -186,19 +186,19 @@ export class PagesService {
     return this.db.queryOne(`UPDATE pages SET status = 'review', updated_at = NOW() WHERE id = $1 RETURNING *`, [id]);
   }
 
-  async approve(id: string, reviewerId?: string) {
+  async approve(id: string, reviewerId?: string, ip?: string) {
     const page = await this.findOne(id);
     const result = await this.db.queryOne(
       `UPDATE pages SET status = 'published', reviewed_by_id = $2, reviewed_at = NOW(), updated_at = NOW() WHERE id = $1 RETURNING *`,
       [id, reviewerId || null],
     );
     if (reviewerId) {
-      this.activity.log(reviewerId, 'approved', 'page', id, `Approved page "${page.title}"`).catch(() => { });
+      this.activity.log(reviewerId, 'approved', 'page', id, `Approved page "${page.title}"`, ip).catch(() => { });
     }
     return result;
   }
 
-  async reject(id: string, reviewerId?: string) {
+  async reject(id: string, reviewerId?: string, ip?: string) {
     await this.findOne(id);
     return this.db.queryOne(
       `UPDATE pages SET status = 'draft', reviewed_by_id = $2, reviewed_at = NOW(), updated_at = NOW() WHERE id = $1 RETURNING *`,
@@ -207,7 +207,7 @@ export class PagesService {
   }
 
   // ── Duplicate Page ──────────────────────────────────
-  async duplicate(id: string, userId?: string) {
+  async duplicate(id: string, userId?: string, ip?: string) {
     const page = await this.findOne(id);
     const newSlug = await this.ensureUniqueSlug(page.slug + '-copy');
     const newPage = await this.db.queryOne(
@@ -228,7 +228,7 @@ export class PagesService {
       }
     }
     if (userId && newPage) {
-      this.activity.log(userId, 'duplicated', 'page', newPage.id, `Duplicated page "${page.title}"`).catch(() => { });
+      this.activity.log(userId, 'duplicated', 'page', newPage.id, `Duplicated page "${page.title}"`, ip).catch(() => { });
     }
     return this.findOne(newPage!.id);
   }
@@ -242,10 +242,10 @@ export class PagesService {
     );
   }
 
-  async restore(id: string, userId?: string) {
+  async restore(id: string, userId?: string, ip?: string) {
     const result = await this.db.queryOne(`UPDATE pages SET deleted_at = NULL, updated_at = NOW() WHERE id = $1 RETURNING *`, [id]);
     if (userId && result) {
-      this.activity.log(userId, 'restored', 'page', id, `Restored page "${result.title}" from trash`).catch(() => { });
+      this.activity.log(userId, 'restored', 'page', id, `Restored page "${result.title}" from trash`, ip).catch(() => { });
     }
     return result;
   }

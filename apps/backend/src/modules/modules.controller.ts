@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
@@ -13,8 +13,8 @@ export class ModulesController {
 
   @Post()
   @Roles('admin', 'super_admin', 'contributor')
-  create(@Body() dto: CreateModuleDto) {
-    return this.modulesService.create(dto);
+  create(@Request() req: any, @Body() dto: CreateModuleDto) {
+    return this.modulesService.create(req.user?.id, req.ip, dto);
   }
 
   @Get()
@@ -29,19 +29,19 @@ export class ModulesController {
 
   @Patch(':id')
   @Roles('admin', 'super_admin', 'contributor')
-  update(@Param('id') id: string, @Body() dto: UpdateModuleDto) {
-    return this.modulesService.update(id, dto);
+  update(@Request() req: any, @Param('id') id: string, @Body() dto: UpdateModuleDto) {
+    return this.modulesService.update(req.user?.id, req.ip, id, dto);
   }
 
   @Delete(':id')
   @Roles('admin', 'super_admin', 'contributor')
-  remove(@Param('id') id: string) {
-    return this.modulesService.remove(id);
+  remove(@Request() req: any, @Param('id') id: string) {
+    return this.modulesService.remove(req.user?.id, req.ip, id);
   }
 
   @Patch('reorder/:pageId')
   @Roles('admin', 'super_admin', 'contributor')
-  reorder(@Param('pageId') pageId: string, @Body() body: { orderedIds: string[] }) {
-    return this.modulesService.reorder(pageId, body.orderedIds);
+  reorder(@Request() req: any, @Param('pageId') pageId: string, @Body() body: { orderedIds: string[] }) {
+    return this.modulesService.reorder(req.user?.id, req.ip, pageId, body.orderedIds);
   }
 }
