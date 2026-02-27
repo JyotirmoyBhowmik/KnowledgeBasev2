@@ -36,11 +36,13 @@ CREATE TABLE IF NOT EXISTS sections (
     slug          TEXT UNIQUE NOT NULL,
     route         TEXT,
     roles_allowed JSONB,
-    "order"       INT NOT NULL DEFAULT 0,
-    icon          TEXT,
-    visible       BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    "order"          INT NOT NULL DEFAULT 0,
+    icon             TEXT,
+    visible          BOOLEAN NOT NULL DEFAULT TRUE,
+    show_on_homepage BOOLEAN NOT NULL DEFAULT TRUE,
+    homepage_order   INT NOT NULL DEFAULT 0,
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS pages (

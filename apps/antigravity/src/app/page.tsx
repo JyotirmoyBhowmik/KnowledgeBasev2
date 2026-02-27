@@ -16,6 +16,7 @@ export default function HomePage() {
 
   // New state for section filtering
   const [selectedSection, setSelectedSection] = useState<string>("ALL");
+  const [filterSections, setFilterSections] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,6 +37,11 @@ export default function HomePage() {
           }
         }
         setSiteSettings(formattedSettings);
+
+        const homepageSections = Array.isArray(sectionsTreeData)
+          ? sectionsTreeData.filter((s: any) => s.show_on_homepage !== false).sort((a: any, b: any) => (a.homepage_order || 0) - (b.homepage_order || 0))
+          : [];
+        setFilterSections(homepageSections);
 
         const mapSection = (m: any): any => ({
           label: m.name || m.label,
@@ -80,7 +86,7 @@ export default function HomePage() {
   });
 
   // Extract unique top-level sections from recent pages for the filter pills
-  const availableSections = Array.from(new Set(recentPages.map(p => p.section?.name).filter(Boolean)));
+  const availableSections = filterSections.map(s => s.name);
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900 overflow-hidden relative">
